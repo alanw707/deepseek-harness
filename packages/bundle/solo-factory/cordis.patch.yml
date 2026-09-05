@@ -1,0 +1,12 @@
+- insert:
+    - id: solo-factory
+      name: '@deepseek-ai/dsh-tool-solo-factory'
+      config:
+        repository: !!js process.env.DSH_FACTORY_REPOSITORY ?? ''
+        worktreeRoot: !!js process.env.DSH_FACTORY_WORKTREE_ROOT ?? dshHomePath('factory/worktrees')
+        historyFile: !!js process.env.DSH_FACTORY_HISTORY_FILE ?? dshHomePath('factory/runs.json')
+        branchPrefix: !!js process.env.DSH_FACTORY_BRANCH_PREFIX ?? 'factory'
+        implement: !!js JSON.parse(process.env.DSH_FACTORY_IMPLEMENT ?? '{"executable":"dsh","args":["--profile","headless-codex","Plan and implement GitHub issue #{issue}: {title}. Requirements: {body} Run focused tests, commit the changes, and push branch {branch}."]}')
+        test: !!js JSON.parse(process.env.DSH_FACTORY_TEST ?? '{"executable":"pnpm","args":["exec","vitest","run","--changed","origin/HEAD"]}')
+        review: !!js JSON.parse(process.env.DSH_FACTORY_REVIEW ?? '{"executable":"dsh","args":["--profile","headless-codex","Review branch {branch} against origin/HEAD for repository standards and GitHub issue #{issue}: {title}. Requirements: {body} Fix valid findings, run focused checks, commit, and push."]}')
+        pullRequest: !!js JSON.parse(process.env.DSH_FACTORY_PR ?? '{"executable":"gh","args":["pr","create","--head","{branch}","--title","{title}","--body","{body}"]}')

@@ -1,0 +1,1 @@
+{"extends":"../../../tsconfig.base.json","compilerOptions":{"rootDir":"src","outDir":"lib/types"},"include":["src"],"references":[{"path":"../../core/tools"},{"path":"../../runtime-diagnostics/invariants"},{"path":"../solo-factory"},{"path":"../../../vendor/cordis"},{"path":"../../../vendor/schemastery"}]}

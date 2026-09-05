@@ -1,0 +1,12 @@
+# The dsh-codex bundle selects pi-ai's OAuth-backed Codex catalog route.
+# Sign in through the Harness authorization surface; no API key is configured.
+
+- id: llm-pi-ai
+  config:
+    providers:
+      openai-codex: {}
+
+- id: agent-default-model
+  config:
+    provider: openai-codex
+    model: gpt-5.6-luna

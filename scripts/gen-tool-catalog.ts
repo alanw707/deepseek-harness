@@ -57,6 +57,7 @@ import Lsp from '@deepseek-ai/dsh-lsp'
 import * as ToolLsp from '@deepseek-ai/dsh-tool-lsp'
 import * as ToolSkill from '@deepseek-ai/dsh-tool-skill'
 import * as ToolSessionQuery from '@deepseek-ai/dsh-tool-session-query'
+import * as ToolSoloFactory from '@deepseek-ai/dsh-tool-solo-factory'
 import * as ToolTasks from '@deepseek-ai/dsh-tool-jobs'
 import type TeamService from '@deepseek-ai/dsh-experimental-agent-team'
 import * as ToolTeam from '@deepseek-ai/dsh-experimental-tool-agent-team'
@@ -452,6 +453,28 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
     note:
       'The five read-only tools hide provider cursors and authorize every result from the immutable calling agent session. The package is opt-in; compositions that need enforced deadlines or bounded inline output also mount the generic timeout or spill policies.',
+  },
+  {
+    pkg: '@deepseek-ai/dsh-tool-solo-factory',
+    dir: 'tool-solo-factory',
+    source: 'packages/factory/tool-solo-factory/src/index.ts',
+    requires: ['ctx.tools'],
+    writes: ['tool/call', 'local Git worktree and owner-only factory history', 'GitHub pull request', 'tool/result'],
+    async mount(ctx) {
+      const inert = { executable: 'tool-catalog-inert', args: [] }
+      await ctx.plugin(ToolSoloFactory, {
+        repository: root,
+        worktreeRoot: resolve(root, '.tmp/tool-catalog/factory/worktrees'),
+        historyFile: resolve(root, '.tmp/tool-catalog/factory/runs.json'),
+        branchPrefix: 'factory',
+        implement: inert,
+        test: inert,
+        review: inert,
+        pullRequest: inert,
+      })
+    },
+    note:
+      'factory_run starts one configured foreground issue-to-pull-request run; factory_resume reruns one recorded failed stage and subsequent incomplete stages. The pull request is the terminal human gate: neither tool merges or releases it.',
   },
   {
     pkg: '@deepseek-ai/dsh-tool-subagent',

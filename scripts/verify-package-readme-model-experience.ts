@@ -44,6 +44,9 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
  * blocks. A package moves on or off this list with its context behavior.
  */
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
+  'packages/bundle/codex': { kind: 'indirect', reason: 'The bundle selects a provider route and model; dsh-llm-pi-ai owns request construction and OAuth use.' },
+  'packages/bundle/solo-factory': { kind: 'indirect', reason: 'The bundle mounts dsh-tool-solo-factory, which owns the model-visible schemas and results.' },
+  'packages/factory/solo-factory': { kind: 'none', reason: 'The local orchestration library registers no prompt, tool, or model context; configured command profiles own any model use.' },
   'packages/attachment/attachment': { kind: 'indirect', reason: 'The storage seam delegates model request rendering to provider adapters.' },
   'packages/attachment/attachment-local': { kind: 'indirect', reason: 'The local backend delegates model request rendering to provider adapters.' },
   'packages/shell/shell': { kind: 'indirect', reason: 'The service interface delegates all model rendering to dsh-tool-bash.' },
