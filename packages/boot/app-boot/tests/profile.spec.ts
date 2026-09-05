@@ -200,7 +200,19 @@ describe('loadProfile', () => {
     // @deepseek-ai/* through tsconfig paths regardless of the staged anchor.
     expect(PROFILE_TEMPLATES.web?.bundles).toContain('@deepseek-ai/dsh-base')
     expect(PROFILE_TEMPLATES.web?.patchReload).toBe('live')
+    expect(PROFILE_TEMPLATES['web-codex']).toEqual({
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-codex'],
+      patchReload: 'live',
+    })
     expect(PROFILE_TEMPLATES.headless?.patchReload).toBe('startup')
+    expect(PROFILE_TEMPLATES['headless-codex']).toEqual({
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless', '@deepseek-ai/dsh-codex'],
+      patchReload: 'startup',
+    })
+    expect(PROFILE_TEMPLATES['headless-solo-factory']).toEqual({
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-headless', '@deepseek-ai/dsh-codex', '@deepseek-ai/dsh-solo-factory-bundle'],
+      patchReload: 'startup',
+    })
     expect(PROFILE_TEMPLATES.acp).toEqual({
       bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-acp-app'],
       patchReload: 'startup',

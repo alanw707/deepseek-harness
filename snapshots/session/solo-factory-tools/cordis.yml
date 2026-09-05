@@ -1,0 +1,13 @@
+# Add the solo-factory Consumer without executing its command adapters.
+- insert:
+    - id: solo-factory
+      name: '@deepseek-ai/dsh-tool-solo-factory'
+      config:
+        repository: !!js process.cwd()
+        worktreeRoot: !!js dshHomePath('factory/worktrees')
+        historyFile: !!js dshHomePath('factory/runs.json')
+        branchPrefix: factory
+        implement: { executable: factory-snapshot-inert, args: [] }
+        test: { executable: factory-snapshot-inert, args: [] }
+        review: { executable: factory-snapshot-inert, args: [] }
+        pullRequest: { executable: factory-snapshot-inert, args: [] }

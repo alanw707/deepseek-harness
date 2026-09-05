@@ -1,0 +1,9 @@
+version: 1
+scenario: solo-factory-tools
+profile: headless
+composition: solo-factory-tools
+recording: authored
+header:
+  class: solo-factory-tools
+  pin: true
+  systemPromptSource: text-turn

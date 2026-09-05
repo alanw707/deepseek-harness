@@ -23,9 +23,11 @@ This group maps the installable patch layers used by `dsh --profile`. Each packa
 | Package | Role | ctx key |
 |---|---|---|
 | [`base`](base/README.md) | Shared core for base-backed profiles | — (patch only) |
+| [`codex`](codex/README.md) | Codex OAuth model selection for Codex profiles | — (patch only) |
 | [`acp-app`](acp-app/README.md) | Automation-only ACP stdio application over base | mounts the ACP bridge |
 | [`web-app`](web-app/README.md) | Browser application layer over base | mounts Web rows |
 | [`headless`](headless/README.md) | One-shot command-line task application over base | `headless-runner` |
+| [`solo-factory`](solo-factory/README.md) | Issue-to-pull-request automation for the solo-factory profile | mounts `tool-solo-factory` |
 | [`sdk-app`](sdk-app/README.md) | SDK JSON-RPC stdio application over base | mounts the SDK server |
 | [`sdk-minimal`](sdk-minimal/README.md) | Standalone minimal SDK application without base or Web | — (complete patch tree) |
 

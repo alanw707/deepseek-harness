@@ -34,6 +34,7 @@ harness 由 `packages/` 下的 npm 包组装而成，按能力系列分组：会
 | [`goal/`](goal/README.zh.md) | 同会话 goal 的持久化与生命周期 |
 | [`schedule/`](schedule/README.zh.md) | 仅限会话内的定时后续操作 |
 | [`feedback/`](feedback/README.zh.md) | 人类反馈的采集与命令 |
+| [`factory/`](factory/README.zh.md) | 独立开发者 issue 到 pull request 执行和面向模型的控制 |
 | [`identity/`](identity/README.zh.md) | 共享匿名身份 |
 | [`llm/`](llm/README.zh.md) | LLM 能力系列：抽象服务 + 提供方适配器 |
 | [`e2b/`](e2b/README.zh.md) | E2B 远程运行时提供方 |
