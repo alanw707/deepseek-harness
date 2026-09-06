@@ -10,7 +10,7 @@ The local command center registers explicitly approved project folders and deleg
 
 The active states are `pending-approval`, `queued`, `running`, and `cancelling`; terminal states are `succeeded`, `failed`, `cancelled`, and `interrupted`. Startup changes persisted `running` or `cancelling` work to `interrupted` and never starts it again. Project admission remains occupied through every active state and detects parent/child overlap, while exact apply attempts use one global operation chain.
 
-Launch approval is a durable dashboard decision consumed before copy preparation. Creation from either dashboard or Discord enters `pending-approval`; Discord has no approval or dispatch operation. Cancellation reports `cancelled` only after task execution confirms that its owned process tree exited. A successful executor produces `pending-review` changes; the dashboard's apply decision names their SHA-256 digest, and startup reports an unfinished apply as `apply-interrupted` without retrying it.
+Launch approval is a durable dashboard decision consumed before copy preparation. Creation from either dashboard or Discord enters `pending-approval`; Discord has no approval or dispatch operation. Cancellation reports `cancelled` only after task execution confirms that its owned process tree exited. A successful executor produces `pending-review` changes when files differ; a zero-entry change set records `no-change` and moves directly to closed history without an apply decision. The dashboard's apply decision names the SHA-256 digest for non-empty changes, and startup reports an unfinished apply as `apply-interrupted` without retrying it.
 
 ## Executor isolation
 
@@ -115,9 +115,10 @@ recordCopy(id: TaskId, copy: TaskCopyReference): Promise<Task>
 
 /**
  * Bind the exact post-run change-set digest before successful settlement.
+ * A zero-entry set records `no-change` and bypasses review/apply.
  * @param id - Running task whose stopped executor produced the changes.
  * @param changes - Exact manifest digest and file count.
- * @returns Task carrying a pending-review change set.
+ * @returns Task carrying a `pending-review` change set or a closed `no-change` outcome.
  */
 recordChanges(id: TaskId, changes: Pick<TaskChangeSetReference, 'sha256' | 'count'>): Promise<Task>
 
@@ -209,14 +210,15 @@ async cancel(id: TaskId): Promise<Task>
 /**
  * Read the exact digest-bound changes produced by a successful task.
  * @param id - Settled task selected in the dashboard.
- * @returns Verified complete UTF-8 before/after review data.
+ * @returns Verified complete UTF-8 before/after review data; an empty set represents `no-change`.
  */
 async review(id: TaskId): Promise<TaskChangeSet>
 
 /**
- * Consume dashboard approval for one exact change-set digest and apply it once.
- * Conflicting original files reject without replacing user work. Apply attempts
- * are globally serialized because registered project directories may overlap.
+ * Consume dashboard approval for one non-empty exact change-set digest and apply it once.
+ * A `no-change` outcome cannot enter apply. Conflicting original files reject
+ * without replacing user work. Apply attempts are globally serialized because
+ * registered project directories may overlap.
  * @param id - Successful task whose staged changes were displayed.
  * @param sha256 - Exact displayed change-set digest.
  * @returns Task carrying the terminal apply state.

@@ -342,9 +342,10 @@ export class TaskControl extends Service {
 
   /**
    * Bind the exact post-run change-set digest before successful settlement.
+   * A zero-entry set records `no-change` and bypasses review/apply.
    * @param id - Running task whose stopped executor produced the changes.
    * @param changes - Exact manifest digest and file count.
-   * @returns Task carrying a pending-review change set.
+   * @returns Task carrying a `pending-review` change set or a closed `no-change` outcome.
    */
   recordChanges(id: TaskId, changes: Pick<TaskChangeSetReference, 'sha256' | 'count'>): Promise<Task> {
     return this.enqueue(async () => {
@@ -355,7 +356,7 @@ export class TaskControl extends Service {
       return await this.replace(id, {
         ...this.requireTable().get(id) as TaskRecord,
         updatedAt: new Date().toISOString(),
-        copy: { ...task.copy, changes: { ...changes, state: 'pending-review' } },
+        copy: { ...task.copy, changes: { ...changes, state: changes.count === 0 ? 'no-change' : 'pending-review' } },
       })
     })
   }

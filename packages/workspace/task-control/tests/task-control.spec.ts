@@ -196,6 +196,21 @@ describe('TaskControl task admission', () => {
     expect(interruptedChanges?.detail).toContain('inspect the project')
   })
 
+  it('records a successful run with no changes without creating review work', async () => {
+    const result = await harness()
+    disposals.push(() => result.fiber.dispose())
+    const task = await result.taskControl.create(request('no changes'))
+    const copy = { root: '/private/no-change', original: '/project', manifestSha256: 'a'.repeat(64) }
+    await result.taskControl.approve(task.id)
+    await result.taskControl.start(task.id)
+    await result.taskControl.consumeApproval(task.id)
+    await result.taskControl.recordCopy(task.id, copy)
+    const unchanged = await result.taskControl.recordChanges(task.id, { sha256: 'f'.repeat(64), count: 0 })
+    expect(unchanged.copy?.changes).toEqual({ sha256: 'f'.repeat(64), count: 0, state: 'no-change' })
+    await result.taskControl.settle(task.id, 'succeeded')
+    await expect(result.taskControl.beginApply(task.id, 'f'.repeat(64))).rejects.toBeInstanceOf(TaskTransitionError)
+  })
+
   it('retains cleanup errors without making running or cancelling work terminal', async () => {
     const result = await harness()
     disposals.push(() => result.fiber.dispose())

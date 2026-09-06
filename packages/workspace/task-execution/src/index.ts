@@ -309,7 +309,7 @@ export class TaskExecution extends Service {
   /**
    * Read the exact digest-bound changes produced by a successful task.
    * @param id - Settled task selected in the dashboard.
-   * @returns Verified complete UTF-8 before/after review data.
+   * @returns Verified complete UTF-8 before/after review data; an empty set represents `no-change`.
    */
   async review(id: TaskId): Promise<TaskChangeSet> {
     const task = this.ctx.taskControl.get(id)
@@ -320,9 +320,10 @@ export class TaskExecution extends Service {
   }
 
   /**
-   * Consume dashboard approval for one exact change-set digest and apply it once.
-   * Conflicting original files reject without replacing user work. Apply attempts
-   * are globally serialized because registered project directories may overlap.
+   * Consume dashboard approval for one non-empty exact change-set digest and apply it once.
+   * A `no-change` outcome cannot enter apply. Conflicting original files reject
+   * without replacing user work. Apply attempts are globally serialized because
+   * registered project directories may overlap.
    * @param id - Successful task whose staged changes were displayed.
    * @param sha256 - Exact displayed change-set digest.
    * @returns Task carrying the terminal apply state.

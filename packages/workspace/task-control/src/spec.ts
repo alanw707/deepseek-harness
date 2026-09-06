@@ -39,7 +39,7 @@ export const taskRecord = z.object({
     changes: z.object({
       sha256: z.string().regex(/^[a-f0-9]{64}$/u),
       count: z.number().int().nonnegative(),
-      state: z.enum(['pending-review', 'applying', 'applied', 'apply-failed', 'apply-interrupted']),
+      state: z.enum(['no-change', 'pending-review', 'applying', 'applied', 'apply-failed', 'apply-interrupted']),
       approval: z.object({
         approvedAt: z.string().min(1),
         consumedAt: z.string().min(1),

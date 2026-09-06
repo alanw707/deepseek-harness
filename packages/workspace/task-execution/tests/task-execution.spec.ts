@@ -159,7 +159,7 @@ async function harness(configOverride: Partial<Config> = {}): Promise<Harness> {
     recordChanges: async (id: TaskIdType, changes: { sha256: string; count: number }) => {
       const current = tasks.get(id)
       if (current?.state !== 'running' || current.copy === undefined) throw new Error('task cannot bind changes')
-      const next: Task = { ...current, copy: { ...current.copy, changes: { ...changes, state: 'pending-review' } } }
+      const next: Task = { ...current, copy: { ...current.copy, changes: { ...changes, state: changes.count === 0 ? 'no-change' : 'pending-review' } } }
       tasks.set(id, next)
       return next
     },
@@ -371,6 +371,20 @@ describe.skipIf(process.platform !== 'linux')('TaskExecution', () => {
     await expect(settled(result, queued.id)).resolves.toMatchObject({ state: 'succeeded' })
     await removed(runtime!)
     expect(await readFile(join(copy.root, 'workspace/file'), 'utf8')).toBe('edited')
+  })
+
+  it('records a successful run with no changes without offering apply', async () => {
+    const result = await harness()
+    cleanup.push(() => result.fiber.dispose())
+    const queued = task('pi')
+    result.tasks.set(queued.id, queued)
+    await result.ctx.taskExecution.run(queued.id)
+    result.subprocess.handle.settle({ exitCode: 0, signal: null })
+    const succeeded = await settled(result, queued.id)
+    expect(succeeded.copy?.changes).toMatchObject({ count: 0, state: 'no-change' })
+    const review = await result.ctx.taskExecution.review(queued.id)
+    expect(review.changes).toHaveLength(0)
+    await expect(result.ctx.taskExecution.apply(queued.id, review.sha256)).rejects.toThrow('cannot be applied')
   })
 
   it('applies only the exact displayed change set after a second durable approval', async () => {

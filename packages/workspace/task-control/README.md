@@ -24,7 +24,7 @@ English | [中文](README.zh.md)
 
 Mount this package with a storage provider before a task executor or command surface. `registerProject()` records a canonical folder as explicitly approved and rejects parent/child overlap with another approval; shared workspaces outside this allowlist cannot receive command-center tasks. `TaskControl` owns task creation, approval consumption, lifecycle transitions, restart recovery, and durable Discord terminal-delivery markers.
 
-`recordCopy()` binds an approved running task to one private snapshot root, canonical original directory, and exact manifest SHA-256. `recordChanges()` then binds the complete post-run change-set digest. `beginApply()` consumes a dashboard decision only when it names that digest, and `finishApply()` records the outcome. Restart changes an in-progress apply to `apply-interrupted` for manual inspection; it never retries the filesystem operation. `recordExecutionError()` persists cleanup failure details without changing a running or cancelling task to a terminal state.
+`recordCopy()` binds an approved running task to one private snapshot root, canonical original directory, and exact manifest SHA-256. `recordChanges()` then binds the complete post-run change-set digest; a zero-entry set is recorded as `no-change` and does not enter review/apply. `beginApply()` consumes a dashboard decision only when it names a non-empty change digest, and `finishApply()` records the outcome. Restart changes an in-progress apply to `apply-interrupted` for manual inspection; it never retries the filesystem operation. `recordExecutionError()` persists cleanup failure details without changing a running or cancelling task to a terminal state.
 
 <a id="model-experience"></a>
 ## Model Experience

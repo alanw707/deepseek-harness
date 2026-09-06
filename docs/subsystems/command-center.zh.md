@@ -10,7 +10,7 @@
 
 活跃状态为 `pending-approval`、`queued`、`running` 和 `cancelling`；终止状态为 `succeeded`、`failed`、`cancelled` 和 `interrupted`。启动会把持久化的 `running` 或 `cancelling` 工作变为 `interrupted`，且绝不再次启动它。项目 admission 在每个活跃状态中保持占用并检测父子路径重叠，而精确应用尝试使用一条全局操作链。
 
-启动批准是持久的仪表板决定，在准备副本前消费。来自仪表板或 Discord 的创建都会进入 `pending-approval`；Discord 没有批准或 dispatch 操作。只有任务执行确认其拥有的进程树已退出后，取消才报告 `cancelled`。成功执行器会产生 `pending-review` 更改；仪表板的应用决定指定其 SHA-256 digest，启动时会把未完成应用报告为 `apply-interrupted`，而不会重试。
+启动批准是持久的仪表板决定，在准备副本前消费。来自仪表板或 Discord 的创建都会进入 `pending-approval`；Discord 没有批准或 dispatch 操作。只有任务执行确认其拥有的进程树已退出后，取消才报告 `cancelled`。成功执行器在文件有差异时会产生 `pending-review` 更改；空更改集会记录为 `no-change`，直接进入已关闭历史记录而不需要应用决定。对于非空更改，仪表板的应用决定指定 SHA-256 digest；启动时会把未完成应用报告为 `apply-interrupted`，而不会重试。
 
 ## 执行器隔离
 
@@ -115,9 +115,10 @@ recordCopy(id: TaskId, copy: TaskCopyReference): Promise<Task>
 
 /**
  * Bind the exact post-run change-set digest before successful settlement.
+ * A zero-entry set records `no-change` and bypasses review/apply.
  * @param id - Running task whose stopped executor produced the changes.
  * @param changes - Exact manifest digest and file count.
- * @returns Task carrying a pending-review change set.
+ * @returns Task carrying a `pending-review` change set or a closed `no-change` outcome.
  */
 recordChanges(id: TaskId, changes: Pick<TaskChangeSetReference, 'sha256' | 'count'>): Promise<Task>
 
@@ -209,14 +210,15 @@ async cancel(id: TaskId): Promise<Task>
 /**
  * Read the exact digest-bound changes produced by a successful task.
  * @param id - Settled task selected in the dashboard.
- * @returns Verified complete UTF-8 before/after review data.
+ * @returns Verified complete UTF-8 before/after review data; an empty set represents `no-change`.
  */
 async review(id: TaskId): Promise<TaskChangeSet>
 
 /**
- * Consume dashboard approval for one exact change-set digest and apply it once.
- * Conflicting original files reject without replacing user work. Apply attempts
- * are globally serialized because registered project directories may overlap.
+ * Consume dashboard approval for one non-empty exact change-set digest and apply it once.
+ * A `no-change` outcome cannot enter apply. Conflicting original files reject
+ * without replacing user work. Apply attempts are globally serialized because
+ * registered project directories may overlap.
  * @param id - Successful task whose staged changes were displayed.
  * @param sha256 - Exact displayed change-set digest.
  * @returns Task carrying the terminal apply state.

@@ -2486,9 +2486,9 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'recordChanges(id: TaskId, changes: Pick<TaskChangeSetReference, \'sha256\' | \'count\'>): Promise<Task>',
-        description: 'Bind the exact post-run change-set digest before successful settlement.',
+        description: 'Bind the exact post-run change-set digest before successful settlement. A zero-entry set records `no-change` and bypasses review/apply.',
         parameters: [{ name: 'id', description: 'Running task whose stopped executor produced the changes.' }, { name: 'changes', description: 'Exact manifest digest and file count.' }],
-        returns: 'Task carrying a pending-review change set.',
+        returns: 'Task carrying a `pending-review` change set or a closed `no-change` outcome.',
       },
       {
         signature: 'beginApply(id: TaskId, sha256: string): Promise<Task>',
@@ -2555,11 +2555,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         signature: 'async review(id: TaskId): Promise<TaskChangeSet>',
         description: 'Read the exact digest-bound changes produced by a successful task.',
         parameters: [{ name: 'id', description: 'Settled task selected in the dashboard.' }],
-        returns: 'Verified complete UTF-8 before/after review data.',
+        returns: 'Verified complete UTF-8 before/after review data; an empty set represents `no-change`.',
       },
       {
         signature: 'apply(id: TaskId, sha256: string): Promise<Task>',
-        description: 'Consume dashboard approval for one exact change-set digest and apply it once. Conflicting original files reject without replacing user work. Apply attempts are globally serialized because registered project directories may overlap.',
+        description: 'Consume dashboard approval for one non-empty exact change-set digest and apply it once. A `no-change` outcome cannot enter apply. Conflicting original files reject without replacing user work. Apply attempts are globally serialized because registered project directories may overlap.',
         parameters: [{ name: 'id', description: 'Successful task whose staged changes were displayed.' }, { name: 'sha256', description: 'Exact displayed change-set digest.' }],
         returns: 'Task carrying the terminal apply state.',
       },
@@ -5927,7 +5927,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'TaskChangeState',
-    declaration: 'export type TaskChangeState = \'pending-review\' | \'applying\' | \'applied\' | \'apply-failed\' | \'apply-interrupted\';',
+    declaration: 'export type TaskChangeState = \'no-change\' | \'pending-review\' | \'applying\' | \'applied\' | \'apply-failed\' | \'apply-interrupted\';',
   },
   {
     name: 'TaskCopyReference',

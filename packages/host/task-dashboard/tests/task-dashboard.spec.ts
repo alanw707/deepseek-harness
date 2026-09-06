@@ -293,6 +293,15 @@ describe('TaskDashboard', () => {
     expect([...dom.window.document.querySelectorAll('.diff-pane pre')].map(node => node.textContent)).toEqual(['before', 'after'])
     await runInContext("document.querySelector('.change-apply').onclick()", context)
     expect(appliedDigest).toBe('d'.repeat(64))
+
+    task = {
+      id: 'no-change-task', workspaceId: 'workspace-1', executor: 'pi', state: 'succeeded', instruction: 'inspect only',
+      updatedAt: '2026-01-01T00:00:01Z', copy: { changes: { sha256: 'e'.repeat(64), count: 0, state: 'no-change' } },
+    }
+    await runInContext('render()', context)
+    expect(dom.window.document.querySelector('#active-tasks .task-card')).toBeNull()
+    expect(dom.window.document.querySelector('#history-tasks .status')?.textContent).toBe('No changes')
+    expect(dom.window.document.querySelector('#history-tasks .next-title')?.textContent).toBe('No changes to apply')
   })
 
   it('rejects malformed, expired, and unauthorized requests without mutating tasks', async () => {

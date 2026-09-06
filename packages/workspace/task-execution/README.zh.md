@@ -24,7 +24,7 @@ kind: "package-reference"
 
 在本包之前挂载任务控制和沙箱提供方；通过所属 profile 配置执行器和 Docker CLI 路径、已存在且包含条目数和字节数限制的私有 `copies.directory`、`reviewLimitBytes` 以及隔离的 OpenClaw 配置。任务保持待处理，直到仪表板记录批准，并且每次运行只消耗一次批准。Pi 通过 `pi auth check --no-refresh --credentials --json` 读取缓存的 OpenAI Codex bearer，并通过临时 provider override 接收它；认证不可用或已过期时，任务失败，不刷新永久凭据。Codex 对配置的 auth 源进行不含 refresh token 的 staging，再将其复制到 sandbox 临时区域下的可写逐次运行 `CODEX_HOME`，因此运行无法轮换永久 Codex 凭据；staging 凭据值会从捕获输出中脱敏。Pi 对所需运行时状态使用相同的临时区域模式，而其文件工具拒绝副本工作区之外的所有路径。
 
-终止结算会等待进程树退出和运行时清理，然后在 `reviewLimitBytes` 范围内记录完整 UTF-8 前后内容及目录 mode 的 digest。`review()` 验证保留文件仍匹配该 digest。`apply()` 持久消耗对所显示 digest 的批准，串行化所有应用尝试，拒绝已变化的原文件，并在后续操作失败时回滚已完成条目。服务释放会等待应用达到静止状态。清理失败会保留非终止任务及持久错误详情；明确请求取消会重试清理。
+终止结算会等待进程树退出和运行时清理，然后在 `reviewLimitBytes` 范围内记录完整 UTF-8 前后内容及目录 mode 的 digest。空结果会记录为 `no-change`，不需要审查或应用。`review()` 验证保留文件仍匹配该 digest。`apply()` 持久消耗对所显示非空 digest 的批准，串行化所有应用尝试，拒绝已变化的原文件，并在后续操作失败时回滚已完成条目。服务释放会等待应用达到静止状态。清理失败会保留非终止任务及持久错误详情；明确请求取消会重试清理。
 
 <a id="model-experience"></a>
 ## 模型体验

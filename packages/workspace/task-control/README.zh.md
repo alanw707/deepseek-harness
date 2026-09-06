@@ -24,7 +24,7 @@ kind: "package-reference"
 
 在任务执行器或命令界面之前，将本包与存储提供方一起挂载。`registerProject()` 将规范化文件夹记录为明确批准，并拒绝与另一个批准存在父子路径重叠；此 allowlist 之外的共享 workspace 不能接收命令中心任务。`TaskControl` 拥有任务创建、批准消耗、生命周期转换、重启恢复和持久 Discord 终止交付标记。
 
-`recordCopy()` 将已批准且运行中的任务绑定到一个私有快照根目录、规范化原项目目录以及精确的清单 SHA-256。`recordChanges()` 随后绑定完整的运行后更改集 digest。只有仪表板决定指定该 digest 时，`beginApply()` 才会消耗该决定，`finishApply()` 记录结果。重启会把进行中的应用变为 `apply-interrupted` 以供手动检查；它绝不重试文件系统操作。`recordExecutionError()` 持久记录清理失败详情，而不会将运行中或取消中的任务变为终止状态。
+`recordCopy()` 将已批准且运行中的任务绑定到一个私有快照根目录、规范化原项目目录以及精确的清单 SHA-256。`recordChanges()` 随后绑定完整的运行后更改集 digest；空更改集会记录为 `no-change`，不会进入审查或应用。只有仪表板决定指定非空更改 digest 时，`beginApply()` 才会消耗该决定，`finishApply()` 记录结果。重启会把进行中的应用变为 `apply-interrupted` 以供手动检查；它绝不重试文件系统操作。`recordExecutionError()` 持久记录清理失败详情，而不会将运行中或取消中的任务变为终止状态。
 
 <a id="model-experience"></a>
 ## 模型体验

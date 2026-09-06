@@ -58,7 +58,7 @@ export interface DiscordTaskDelivery {
 }
 
 /** Durable state of one exact staged change set. */
-export type TaskChangeState = 'pending-review' | 'applying' | 'applied' | 'apply-failed' | 'apply-interrupted'
+export type TaskChangeState = 'no-change' | 'pending-review' | 'applying' | 'applied' | 'apply-failed' | 'apply-interrupted'
 
 /** Dashboard decision bound to one exact staged change set. */
 export interface TaskChangeApproval {
