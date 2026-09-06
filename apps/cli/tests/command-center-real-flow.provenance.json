@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "recordedCommit": "b51c017d5ef0ec5959e2d63bac7a82309b226dcc",
+  "recordedAt": "2026-09-06T19:44:07.671Z",
+  "server": {
+    "command": "node apps/cli/lib/bin.js --profile web --no-open --port 0",
+    "build": "pnpm run build && pnpm run build:web",
+    "profile": "web",
+    "origin": "loopback 127.0.0.1 with an ephemeral port",
+    "stateRoots": "fresh temporary DSH_HOME, task-copy directory, project directory, and session state"
+  },
+  "browser": {
+    "tool": "browser-use",
+    "viewport": {
+      "width": 780,
+      "height": 492
+    },
+    "realModelRound": true,
+    "fixtureMode": false,
+    "mockTransport": false,
+    "executor": "Pi",
+    "prompt": "Create REVIEWED_FLOW.txt with the exact text \"real model review\". Make no other changes.",
+    "stateException": "The browser-use default local Chrome daemon reused its existing browser profile. The production startup notices were dismissed with the official Configure later action; no API key or other credential was entered or captured."
+  },
+  "recording": {
+    "browserTraceDirectory": "/home/alanw/.config/browser-harness/agent-workspace/recordings/command-center-real-flow-storyboard",
+    "frameDirectory": ".playwright-mcp/command-center-real-flow-fresh",
+    "gif": ".playwright-mcp/command-center-real-flow.gif",
+    "sourceFrames": 6,
+    "encodedFrames": 140,
+    "durationSeconds": 14,
+    "bytes": 392136,
+    "sha256": "d80c57cbb257a2b3704b74465d4d9c6b890209c0d7edbbafad076977455c371a",
+    "encoding": "The encoder was run with six one-frame WebM intermediaries under .playwright-mcp/command-center-real-flow-webmframes and --pattern '*.webm'."
+  },
+  "states": [
+    "00-chat.png: original Chat landing with Chat selected and Tasks available",
+    "01-new-task.png: additive Tasks landing with the New task step selected",
+    "02-review-start.png: Pi task awaiting explicit Approve & start Pi approval",
+    "03-running.png: Pi running while the original project remains unchanged",
+    "04-exact-review.png: Changes ready with exact digest and before/after review",
+    "05-applied.png: applied task retained in Task history"
+  ],
+  "frameSha256": {
+    "00-chat.png": "87a57aa2bedfd8db740a6684b1544f1025680deadc207b9e188ef81c7c457f40",
+    "01-new-task.png": "9140972b9708f768390c754c8a3a02cb28fa27854b68c32daf5add1cf3451112",
+    "02-review-start.png": "864e0c3890fb7972af31cb0467e3cf07e328e3b6ba2635a70ef7c070286639f9",
+    "03-running.png": "5b56be7ff92aac4f93b568a2fe94ee0fb3c9fcdd1aa4e35b7b8b9463754203f4",
+    "04-exact-review.png": "3a34ac0c68f23e02c0011e43e65c81583933c021a18377ab67eb6214bfd0a77f",
+    "05-applied.png": "347aba133ac9efd4aa46486643fd6ccf63c938aef25421285c2e0448635b23f1"
+  },
+  "validation": [
+    "pnpm run lint",
+    "pnpm run build",
+    "pnpm run build:web",
+    "pnpm run doc-sync (33 passed, 0 failed, 0 skipped)",
+    "focused Command Center, task-control, task-execution, and sandbox tests (173 passed)",
+    "built-bin default Web profile tests (2 passed)",
+    "DSH_COMMAND_CENTER_REAL_FLOW=1 pnpm exec vitest run --config vitest.e2e.config.ts apps/cli/tests/command-center-real-flow.e2e.ts (1 passed)",
+    "git diff --check"
+  ]
+}
