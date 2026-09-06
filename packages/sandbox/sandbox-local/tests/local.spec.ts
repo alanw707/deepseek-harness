@@ -83,6 +83,13 @@ describe('profile dialects', () => {
     ])
   })
 
+  it('bwrap exposes declared private read-only roots after masking /tmp', () => {
+    expect(bwrapProfileArgs({ ...WW, readOnlyRoots: ['/private/staging'] })).toEqual([
+      '--ro-bind', '/', '/', '--dev', '/dev', '--unshare-pid', '--proc', '/proc', '--die-with-parent',
+      '--tmpfs', '/tmp', '--ro-bind', '/private/staging', '/private/staging', '--bind', '/ws', '/ws',
+    ])
+  })
+
   it('landlock read-only: readable tree plus a writable /dev/null, nothing else', () => {
     // /dev/null specifically, NOT /dev: a whole-/dev grant would let confined
     // commands write real host paths beneath it (/dev/shm) under read-only.

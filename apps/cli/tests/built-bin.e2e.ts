@@ -910,6 +910,56 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     beforeEach(() => { home = mkdtempSync(join(tmpdir(), 'dsh-dump-bin-')) })
     afterEach(() => { rmSync(home, { recursive: true, force: true }) })
 
+    it('boots the default Web profile with original Chat and additive Tasks', async () => {
+      const home = mkdtempSync(join(tmpdir(), 'dsh-default-web-'))
+      const server = execa(process.execPath, [dshBin, '--profile', 'web', '--no-open', '--port', '0'], {
+        cwd: repoRoot,
+        input: '',
+        reject: false,
+        timeout: SPAWN_TIMEOUT_MS,
+        killSignal: 'SIGKILL',
+        extendEnv: false,
+        env: { ...process.env, DSH_HOME: home, DSH_TELEMETRY_DISABLED: '1' },
+      })
+      let serverExited = false
+      void server.then(() => { serverExited = true })
+      try {
+        const output = createInterface({ input: server.stdout })
+        const launchLine = await new Promise<string>((resolve, reject) => {
+          let lineFound = false
+          output.on('line', (line: string) => {
+            if (line.startsWith('dsh web: ')) {
+              lineFound = true
+              output.close()
+              resolve(line)
+            }
+          })
+          void server.then((result) => {
+            if (!lineFound) reject(new Error(`default Web profile exited with code ${String(result.exitCode ?? -1)}`))
+          }, reject)
+        })
+        const launchUrl = /^dsh web: (http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+)$/u.exec(launchLine)?.[1]
+        if (launchUrl === undefined) throw new Error(`unexpected Web launch line: ${launchLine}`)
+        const exchange = await fetch(launchUrl, { redirect: 'manual' })
+        expect(exchange.status).toBe(303)
+        const cookie = exchange.headers.get('set-cookie')?.split(';', 1)[0]
+        expect(cookie).toBeDefined()
+        const headers = { cookie: cookie! }
+        const chat = await fetch(new URL('/', launchUrl), { headers })
+        expect(chat.status).toBe(200)
+        const chatHtml = await chat.text()
+        expect(chatHtml).toContain('dsh-command-center-nav')
+        expect(chatHtml).toContain('href="/command-center"')
+        const tasks = await fetch(new URL('/command-center', launchUrl), { headers })
+        expect(tasks.status).toBe(200)
+        expect(await tasks.text()).toContain('Move work forward. Keep the final say.')
+      } finally {
+        if (!serverExited) server.kill('SIGTERM')
+        await server
+        rmSync(home, { recursive: true, force: true })
+      }
+    }, SPAWN_TIMEOUT_MS * 2 + 30_000)
+
     it('prints the web profile bundle layers without a user layer', async () => {
       const { stdout, code, stderr } = await runBuiltBin(['--profile', 'web', '--dump-default-config'], { DSH_HOME: home })
       expect(code).toBe(0)
@@ -918,6 +968,9 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
       expect(stdout).toContain('agents: []')
       expect(stdout).toContain('# == @deepseek-ai/dsh-base')
       expect(stdout).toContain("name: '@deepseek-ai/dsh-host-webserver'")
+      expect(stdout).toContain("name: '@deepseek-ai/dsh-host-task-dashboard'")
+      expect(stdout).toContain("name: '@deepseek-ai/dsh-task-control'")
+      expect(stdout).toContain('# == @deepseek-ai/dsh-command-center-bundle')
       expect(existsSync(join(home, 'profiles', 'node_modules'))).toBe(false)
     }, SPAWN_TIMEOUT_MS + 30_000)
 

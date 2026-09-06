@@ -198,10 +198,12 @@ describe('loadProfile', () => {
     // The web template auto-initializes on first load. Bundle resolution
     // cannot be asserted to fail here: the source-plane test runner resolves
     // @deepseek-ai/* through tsconfig paths regardless of the staged anchor.
-    expect(PROFILE_TEMPLATES.web?.bundles).toContain('@deepseek-ai/dsh-base')
-    expect(PROFILE_TEMPLATES.web?.patchReload).toBe('live')
+    expect(PROFILE_TEMPLATES.web).toEqual({
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-command-center-bundle'],
+      patchReload: 'live',
+    })
     expect(PROFILE_TEMPLATES['web-codex']).toEqual({
-      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-codex'],
+      bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-command-center-bundle', '@deepseek-ai/dsh-codex'],
       patchReload: 'live',
     })
     expect(PROFILE_TEMPLATES.headless?.patchReload).toBe('startup')
@@ -266,6 +268,25 @@ describe('loadProfile', () => {
     expect(readProfileManifest('t', custom).dsh?.profile?.bundles).toEqual([
       '@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-headless', 'custom-bundle',
     ])
+  })
+
+  it('normalizes exact stock Web tuples to include the command center bundle', () => {
+    const anchor = stageInstallation({
+      '@deepseek-ai/dsh-base': { patch: '[]\n' },
+      '@deepseek-ai/dsh-web-app': { patch: '[]\n' },
+      '@deepseek-ai/dsh-command-center-bundle': { patch: '[]\n' },
+      '@deepseek-ai/dsh-codex': { patch: '[]\n' },
+    })
+    for (const [name, previous, current] of [
+      ['web', ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'], ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-command-center-bundle']],
+      ['web-codex', ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-codex'], ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@deepseek-ai/dsh-command-center-bundle', '@deepseek-ai/dsh-codex']],
+    ] as const) {
+      const home = tmp()
+      const profile = resolveProfileDir(name, home)
+      initProfile(profile, previous)
+      loadProfile('t', name, anchor, home)
+      expect(readProfileManifest('t', profile).dsh?.profile?.bundles).toEqual(current)
+    }
   })
 
   it('adds a shipped reload default only to an exact stock tuple and preserves explicit choices', () => {

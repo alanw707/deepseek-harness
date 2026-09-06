@@ -15,10 +15,9 @@ import type { SandboxPolicy } from '@deepseek-ai/dsh-sandbox'
  */
 export function bwrapProfileArgs(policy: SandboxPolicy): string[] {
   const args = ['--ro-bind', '/', '/', '--dev', '/dev', '--unshare-pid', '--proc', '/proc', '--die-with-parent']
-  if (policy.mode === 'workspace-write') {
-    args.push('--tmpfs', '/tmp')
-    args.push('--bind', policy.workspaceRoot, policy.workspaceRoot)
-  }
+  if (policy.mode === 'workspace-write') args.push('--tmpfs', '/tmp')
+  for (const root of policy.readOnlyRoots ?? []) args.push('--ro-bind', root, root)
+  if (policy.mode === 'workspace-write') args.push('--bind', policy.workspaceRoot, policy.workspaceRoot)
   return args
 }
 

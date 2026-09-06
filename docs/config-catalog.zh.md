@@ -876,6 +876,32 @@ export interface Config {
 
 来源：[`packages/host/frontend-static/src/index.ts:30`](../packages/host/frontend-static/src/index.ts)
 
+<a id="deepseek-aidsh-host-task-dashboard"></a>
+
+## `@deepseek-ai/dsh-host-task-dashboard`
+
+需要：`webServer` · `taskControl` · `taskExecution` · `connection`
+
+```ts config-catalog
+/** Local dashboard session lifetime configuration. */
+export interface Config {
+  /** Session lifetime in milliseconds before the browser must reload the dashboard. */
+  readonly sessionTtlMs?: number
+  /** Dedicated Discord bot token; omit every Discord field to disable Discord ingress. */
+  readonly discordToken?: string
+  /** Only Discord user permitted to issue commands. */
+  readonly discordUserId?: string
+  /** Exact server allowlist. */
+  readonly discordGuildIds?: string[]
+  /** Exact channel allowlist. */
+  readonly discordChannelIds?: string[]
+  /** Discord command prefix (default: `!cc`). */
+  readonly discordPrefix?: string
+}
+```
+
+来源：[`packages/host/task-dashboard/src/index.ts:22`](../packages/host/task-dashboard/src/index.ts)
+
 <a id="deepseek-aidsh-host-webserver"></a>
 
 ## `@deepseek-ai/dsh-host-webserver`
@@ -2505,6 +2531,79 @@ export interface Config {
 
 来源：[`packages/core/system-prompt/src/index.ts:237`](../packages/core/system-prompt/src/index.ts)
 
+<a id="deepseek-aidsh-task-execution"></a>
+
+## `@deepseek-ai/dsh-task-execution`
+
+需要：`sandbox` · `subprocess` · `taskControl` · `workspaceRegistry`
+
+```ts config-catalog
+/** Deployment settings for the three fixed command-center executors. */
+export interface Config {
+  /** Pi noninteractive runner. */
+  readonly pi: PiExecutorConfig
+  /** Codex noninteractive runner. */
+  readonly codex: CodexExecutorConfig
+  /** OpenClaw isolated headless runner. */
+  readonly openclaw: OpenClawExecutorConfig
+  /** Private existing storage directory and limits for retained project snapshots. */
+  readonly copies: Omit<TaskCopyLimits, 'excludedNames'> & {
+    /** Existing owner-only directory outside all registered projects. */
+    readonly directory: string
+    /** Basenames excluded at every depth in addition to protected credential/configuration names. */
+    readonly excludedNames: string[]
+  }
+  /** Whole-tree termination grace period. */
+  readonly graceMs: number
+  /** Maximum bytes retained from each executor output stream. */
+  readonly outputLimitBytes: number
+  /** Maximum combined before/after UTF-8 bytes available for exact dashboard review. */
+  readonly reviewLimitBytes: number
+}
+
+/** Pi executor configuration. */
+export interface PiExecutorConfig extends CommandPrefix {
+  /** Pi catalog model selected through the user's stored subscription authentication. */
+  readonly model: string
+}
+
+/** Codex executor configuration. */
+export interface CodexExecutorConfig extends CommandPrefix {
+  /** Existing Codex credential source copied without refresh authority into each ephemeral run. */
+  readonly authPath: string
+  /** Absolute static runtime directories needed by an installation outside minimal system paths. */
+  readonly runtimeReadRoots?: string[]
+}
+
+/** OpenClaw executor configuration. */
+export interface OpenClawExecutorConfig extends CommandPrefix {
+  /** Dedicated OpenClaw JSON5 configuration with Docker task isolation. */
+  readonly configPath: string
+  /** Docker CLI used to remove the exact per-task sandbox container before settlement. */
+  readonly dockerCommand: string
+}
+
+/** Deployment limits for one project snapshot. */
+export interface TaskCopyLimits {
+  /** Maximum directory entries visited, including excluded entries. */
+  readonly maxEntries: number
+  /** Maximum total file bytes retained in one snapshot. */
+  readonly maxBytes: number
+  /** Directory or file basenames omitted at every depth, in addition to protected names. */
+  readonly excludedNames: readonly string[]
+}
+
+/** Command prefix supplied by the local deployment. */
+export interface CommandPrefix {
+  /** Executable path or bare executable name resolved by `ctx.subprocess`. */
+  readonly command: string
+  /** Arguments preceding the executor-specific arguments. */
+  readonly arguments?: string[]
+}
+```
+
+来源：[`packages/workspace/task-execution/src/index.ts:57`](../packages/workspace/task-execution/src/index.ts)
+
 <a id="deepseek-aidsh-terminal-bash"></a>
 
 ## `@deepseek-ai/dsh-terminal-bash`
@@ -3407,6 +3506,7 @@ export interface Config {
 - `@deepseek-ai/dsh-storage`（[`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts)）
 - `@deepseek-ai/dsh-subagent`（[`packages/subagent/subagent/src/index.ts`](../packages/subagent/subagent/src/index.ts)）
 - `@deepseek-ai/dsh-subprocess-local`（[`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts)）
+- `@deepseek-ai/dsh-task-control` — 需要 `storageDomain` · `workspaceRegistry`（[`packages/workspace/task-control/src/index.ts`](../packages/workspace/task-control/src/index.ts)）
 - `@deepseek-ai/dsh-terminal`（[`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts)）
 - `@deepseek-ai/dsh-tool-ask-user` — 需要 `tools` · `userInteraction`（[`packages/interaction/tool-ask-user/src/index.ts`](../packages/interaction/tool-ask-user/src/index.ts)）
 - `@deepseek-ai/dsh-tool-call-timeout-policy` — 需要 `tools`（[`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts)）
@@ -3453,6 +3553,7 @@ export interface Config {
 - `@deepseek-ai/dsh-client-web`（[`packages/client/web/src/index.ts`](../packages/client/web/src/index.ts)）
 - `@deepseek-ai/dsh-cmdline`（[`packages/boot/cmdline/src/index.ts`](../packages/boot/cmdline/src/index.ts)）
 - `@deepseek-ai/dsh-codex`（[`packages/bundle/codex/src/index.ts`](../packages/bundle/codex/src/index.ts)）
+- `@deepseek-ai/dsh-command-center-bundle`（[`packages/bundle/command-center/src/index.ts`](../packages/bundle/command-center/src/index.ts)）
 - `@deepseek-ai/dsh-deque`（[`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts)）
 - `@deepseek-ai/dsh-experimental-agent-team-profile`（[`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts)）
 - `@deepseek-ai/dsh-experimental-agent-team-web-profile`（[`packages/experimental/agent-team-web-profile/src/index.ts`](../packages/experimental/agent-team-web-profile/src/index.ts)）

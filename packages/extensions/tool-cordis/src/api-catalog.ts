@@ -2426,6 +2426,146 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'taskControl',
+    summary: 'Host task registry.',
+    description: 'Host task registry. It records requests before execution, admits one active task per overlapping approved project path, and changes unfinished work to `interrupted` during restart recovery. Executor providers own process launch and call the lifecycle methods at their durable handoff points.',
+    methods: [
+      {
+        signature: 'registerProject(path: string): Promise<CommandCenterProject>',
+        description: 'Explicitly approve one canonical project directory for command-center tasks. Existing approval for the same shared workspace is returned unchanged; parent/child overlap with another approved project rejects.',
+        parameters: [{ name: 'path', description: 'Existing fully qualified project directory.' }],
+        returns: 'Durable approved project.',
+      },
+      {
+        signature: 'listProjects(): readonly CommandCenterProject[]',
+        description: 'List explicitly approved command-center projects in approval order.',
+        parameters: [],
+        returns: 'Durable project approvals, newest first.',
+      },
+      {
+        signature: 'list(): readonly Task[]',
+        description: 'List all tasks, newest first. The caller receives immutable snapshots, while storage remains the authoritative record.',
+        parameters: [],
+        returns: 'current durable task projection.',
+      },
+      {
+        signature: 'get(id: TaskId): Task | undefined',
+        description: 'Read one task without modifying it.',
+        parameters: [{ name: 'id', description: 'Task identity.' }],
+        returns: 'current task, or `undefined` when absent.',
+      },
+      {
+        signature: 'create(request: TaskRequest): Promise<Task>',
+        description: 'Record a task awaiting explicit dashboard approval. One project can hold only one active task, including one still awaiting approval.',
+        parameters: [{ name: 'request', description: 'Project, executor, entry point, and instruction.' }],
+        returns: 'accepted task.',
+      },
+      {
+        signature: 'approve(id: TaskId): Promise<Task>',
+        description: 'Record one explicit dashboard decision and queue the task for dispatch. The executor must consume this one-shot decision before it starts a child.',
+        parameters: [{ name: 'id', description: 'Task to queue.' }],
+        returns: 'queued task with its durable dashboard decision.',
+      },
+      {
+        signature: 'start(id: TaskId): Promise<Task>',
+        description: 'Mark a queued task running after its executor has taken ownership. A missing project directory produces a durable failed outcome instead of a process launch against an unapproved path.',
+        parameters: [{ name: 'id', description: 'Task executor is about to own.' }],
+        returns: 'running task, or a failed task when its project is unavailable.',
+      },
+      {
+        signature: 'consumeApproval(id: TaskId): Promise<Task>',
+        description: 'Consume the task\'s dashboard decision before preparing one executor run. A decision cannot authorize another run after this call.',
+        parameters: [{ name: 'id', description: 'Running task about to launch its owned executor process.' }],
+        returns: 'running task with its consumed decision.',
+      },
+      {
+        signature: 'recordCopy(id: TaskId, copy: TaskCopyReference): Promise<Task>',
+        description: 'Bind one approved running task to its prepared snapshot exactly once.',
+        parameters: [{ name: 'id', description: 'Task whose executor owns preparation.' }, { name: 'copy', description: 'Private snapshot location and exact manifest fingerprint.' }],
+        returns: 'Task carrying the durable snapshot reference.',
+      },
+      {
+        signature: 'recordChanges(id: TaskId, changes: Pick<TaskChangeSetReference, \'sha256\' | \'count\'>): Promise<Task>',
+        description: 'Bind the exact post-run change-set digest before successful settlement.',
+        parameters: [{ name: 'id', description: 'Running task whose stopped executor produced the changes.' }, { name: 'changes', description: 'Exact manifest digest and file count.' }],
+        returns: 'Task carrying a pending-review change set.',
+      },
+      {
+        signature: 'beginApply(id: TaskId, sha256: string): Promise<Task>',
+        description: 'Durably bind and consume dashboard approval for one displayed change-set digest.',
+        parameters: [{ name: 'id', description: 'Successful task whose changes are pending review.' }, { name: 'sha256', description: 'Digest displayed by the dashboard and submitted for apply.' }],
+        returns: 'Task marked applying before project files may change.',
+      },
+      {
+        signature: 'finishApply(id: TaskId, state: Extract<TaskChangeState, \'applied\' | \'apply-failed\'>, detail?: string): Promise<Task>',
+        description: 'Record the terminal result of one apply attempt.',
+        parameters: [{ name: 'id', description: 'Task whose exact change-set approval is being consumed.' }, { name: 'state', description: 'Successful or failed apply outcome.' }, { name: 'detail', description: 'Bounded failure detail, or cleanup warning after a successful apply.' }],
+        returns: 'Task with a terminal change-set state.',
+      },
+      {
+        signature: 'recordExecutionError(id: TaskId, detail: string): Promise<Task>',
+        description: 'Report failed executor cleanup without claiming that owned work has stopped.',
+        parameters: [{ name: 'id', description: 'Running or cancelling task whose executor retains cleanup ownership.' }, { name: 'detail', description: 'Bounded credential-safe failure description.' }],
+        returns: 'Nonterminal task with its updated failure detail.',
+      },
+      {
+        signature: 'cancel(id: TaskId): Promise<Task>',
+        description: 'Request cancellation. Queued work stops immediately; a running executor must call settle after its owned process tree has stopped.',
+        parameters: [{ name: 'id', description: 'Task to cancel.' }],
+        returns: 'current cancellation state.',
+      },
+      {
+        signature: 'settle(id: TaskId, state: Exclude<TerminalTaskState, \'interrupted\'>, detail?: string): Promise<Task>',
+        description: 'Record the executor\'s terminal result. Only an owned running process can report success or failure; only a cancelling process can report stopped.',
+        parameters: [{ name: 'id', description: 'Task being settled.' }, { name: 'state', description: 'Terminal executor outcome.' }, { name: 'detail', description: 'Safe result or error detail for later inspection.' }],
+        returns: 'settled task.',
+      },
+      {
+        signature: 'markDiscordDelivered(id: TaskId): Promise<Task>',
+        description: 'Persist successful Discord delivery of a terminal task outcome.',
+        parameters: [{ name: 'id', description: 'Discord-origin terminal task whose outcome was sent.' }],
+        returns: 'task with its delivery timestamp.',
+      },
+    ],
+  },
+  {
+    key: 'taskDashboard',
+    summary: 'Local command-center dashboard.',
+    description: 'Local command-center dashboard. It issues opaque HttpOnly browser sessions, requires a per-page CSRF value for every mutation, and serves no route when the Host is not bound to loopback.',
+    methods: [],
+  },
+  {
+    key: 'taskExecution',
+    summary: 'Local task executor.',
+    description: 'Local task executor. It takes ownership only after a dashboard-approved task reached `queued`, wraps every child in a full workspace-write sandbox, and retains bounded redacted diagnostics in the durable task record.',
+    methods: [
+      {
+        signature: 'async run(id: TaskId): Promise<Task>',
+        description: 'Launch a queued, dashboard-approved task. The process runs only in its private project copy and remains owned until a terminal record is durable. The retained snapshot is bound to the task before any executor starts.',
+        parameters: [{ name: 'id', description: 'Task selected by the dashboard dispatcher.' }],
+        returns: 'running task, or a failed task if pre-launch setup fails.',
+      },
+      {
+        signature: 'async cancel(id: TaskId): Promise<Task>',
+        description: 'Cancel a queued task or terminate a running executor tree and wait for the durable cancelled result. Returning means no owned child process remains.',
+        parameters: [{ name: 'id', description: 'Task to stop.' }],
+        returns: 'durable terminal task.',
+      },
+      {
+        signature: 'async review(id: TaskId): Promise<TaskChangeSet>',
+        description: 'Read the exact digest-bound changes produced by a successful task.',
+        parameters: [{ name: 'id', description: 'Settled task selected in the dashboard.' }],
+        returns: 'Verified complete UTF-8 before/after review data.',
+      },
+      {
+        signature: 'apply(id: TaskId, sha256: string): Promise<Task>',
+        description: 'Consume dashboard approval for one exact change-set digest and apply it once. Conflicting original files reject without replacing user work. Apply attempts are globally serialized because registered project directories may overlap.',
+        parameters: [{ name: 'id', description: 'Successful task whose staged changes were displayed.' }, { name: 'sha256', description: 'Exact displayed change-set digest.' }],
+        returns: 'Task carrying the terminal apply state.',
+      },
+    ],
+  },
+  {
     key: 'terminals',
     summary: 'In-process registry for replaceable PTY backends and exact-Agent sessions.',
     description: 'In-process registry for replaceable PTY backends and exact-Agent sessions.',
@@ -3750,6 +3890,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface CollectedOutput {\n    text: string;\n    truncated: boolean;\n    spillPath?: string;\n}',
   },
   {
+    name: 'CommandCenterProject',
+    declaration: 'export interface CommandCenterProject {\n    readonly id: WorkspaceId;\n    readonly title: string;\n    readonly path: string;\n    readonly approvedAt: string;\n}',
+  },
+  {
     name: 'CommandDefinition',
     declaration: 'export interface CommandDefinition {\n    readonly name: string;\n    readonly description: string;\n    readonly input?: CommandInputDescriptor;\n    readonly recordInput?: boolean;\n    readonly handler: (invocation: CommandInvocation) => CommandResult | Promise<CommandResult>;\n}',
   },
@@ -4012,6 +4156,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'DirectoryRegistrationHandle',
     declaration: 'export interface DirectoryRegistrationHandle {\n    (): void;\n    replace(entries: readonly LlmConfigurableProvider[]): void;\n}',
+  },
+  {
+    name: 'DiscordTaskDelivery',
+    declaration: 'export interface DiscordTaskDelivery {\n    readonly channelId: string;\n    readonly deliveredAt?: string | undefined;\n}',
   },
   {
     name: 'Domain',
@@ -4855,7 +5003,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SandboxExecutionPolicy',
-    declaration: 'export interface SandboxExecutionPolicy {\n    mode: SandboxMode;\n    workspaceRoot: string;\n    sessionId?: SessionId;\n}',
+    declaration: 'export interface SandboxExecutionPolicy {\n    mode: SandboxMode;\n    workspaceRoot: string;\n    readOnlyRoots?: readonly string[];\n    sessionId?: SessionId;\n}',
   },
   {
     name: 'SandboxMode',
@@ -5750,6 +5898,58 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type TableValueOf<S extends DomainSpec, N extends keyof S[\'tables\']> = S[\'tables\'][N] extends DomainTableSpec<string, infer V> ? V : never;',
   },
   {
+    name: 'Task',
+    declaration: 'export interface Task {\n    readonly id: TaskId;\n    readonly workspaceId: WorkspaceId;\n    readonly executor: TaskExecutor;\n    readonly origin: TaskOrigin;\n    readonly instruction: string;\n    readonly state: TaskState;\n    readonly createdAt: string;\n    readonly updatedAt: string;\n    readonly approval?: TaskApproval | undefined;\n    readonly detail?: string | undefined;\n    readonly discord?: DiscordTaskDelivery | undefined;\n    readonly copy?: TaskCopyReference | undefined;\n}',
+  },
+  {
+    name: 'TaskApproval',
+    declaration: 'export interface TaskApproval {\n    readonly approvedAt: string;\n    readonly consumedAt?: string | undefined;\n}',
+  },
+  {
+    name: 'TaskChange',
+    declaration: 'export interface TaskChange {\n    readonly path: string;\n    readonly kind: \'create\' | \'modify\' | \'delete\';\n    readonly before?: TaskChangeSide | undefined;\n    readonly after?: TaskChangeSide | undefined;\n}',
+  },
+  {
+    name: 'TaskChangeApproval',
+    declaration: 'export interface TaskChangeApproval {\n    readonly approvedAt: string;\n    readonly consumedAt: string;\n}',
+  },
+  {
+    name: 'TaskChangeSet',
+    declaration: 'export interface TaskChangeSet {\n    readonly sha256: string;\n    readonly changes: readonly TaskChange[];\n}',
+  },
+  {
+    name: 'TaskChangeSetReference',
+    declaration: 'export interface TaskChangeSetReference {\n    readonly sha256: string;\n    readonly count: number;\n    readonly state: TaskChangeState;\n    readonly approval?: TaskChangeApproval | undefined;\n    readonly appliedAt?: string | undefined;\n    readonly detail?: string | undefined;\n}',
+  },
+  {
+    name: 'TaskChangeSide',
+    declaration: 'export interface TaskChangeSide {\n    readonly type: \'file\' | \'directory\';\n    readonly mode: number;\n    readonly text?: string | undefined;\n    readonly sha256?: string | undefined;\n    readonly size?: number | undefined;\n}',
+  },
+  {
+    name: 'TaskChangeState',
+    declaration: 'export type TaskChangeState = \'pending-review\' | \'applying\' | \'applied\' | \'apply-failed\' | \'apply-interrupted\';',
+  },
+  {
+    name: 'TaskCopyReference',
+    declaration: 'export interface TaskCopyReference {\n    readonly root: string;\n    readonly original: string;\n    readonly manifestSha256: string;\n    readonly changes?: TaskChangeSetReference | undefined;\n}',
+  },
+  {
+    name: 'TaskExecutor',
+    declaration: 'export type TaskExecutor = \'pi\' | \'codex\' | \'openclaw\';',
+  },
+  {
+    name: 'TaskOrigin',
+    declaration: 'export type TaskOrigin = \'dashboard\' | \'discord\';',
+  },
+  {
+    name: 'TaskRequest',
+    declaration: 'export interface TaskRequest {\n    readonly workspaceId: WorkspaceId;\n    readonly executor: TaskExecutor;\n    readonly origin: TaskOrigin;\n    readonly instruction: string;\n    readonly discordChannelId?: string | undefined;\n}',
+  },
+  {
+    name: 'TaskState',
+    declaration: 'export type TaskState = \'pending-approval\' | \'queued\' | \'running\' | \'cancelling\' | \'succeeded\' | \'failed\' | \'cancelled\' | \'interrupted\';',
+  },
+  {
     name: 'TeamId',
     declaration: 'export type TeamId = Branded<\'TeamId\'>;',
   },
@@ -5868,6 +6068,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TerminalSpawnResult',
     declaration: 'export interface TerminalSpawnResult extends TerminalSessionSnapshot {\n    motd: string;\n}',
+  },
+  {
+    name: 'TerminalTaskState',
+    declaration: 'export type TerminalTaskState = \'succeeded\' | \'failed\' | \'cancelled\' | \'interrupted\';',
   },
   {
     name: 'TerminalWaitReason',

@@ -296,7 +296,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'storage-domain',
     title: 'Domain data facility',
     mode: 'core',
-    consumers: ['workspace', 'message-feedback'],
+    consumers: ['workspace', 'message-feedback', 'task-control'],
     note: 'Waits for every configured backend, then publishes the domain form as one lifecycle-bound service for typed durable state.',
   },
   {
@@ -311,8 +311,31 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'workspace',
     title: 'Workspace entity registry',
     mode: 'core',
-    consumers: ['api-workspace-controller', 'api-session-controller'],
+    consumers: ['api-workspace-controller', 'api-session-controller', 'task-control', 'task-execution', 'host-task-dashboard'],
     note: 'Owns WorkspaceId-branded records over the domain facility; stable sessionIds accounts drive Host RPC and GUI projections.',
+  },
+  {
+    key: 'taskControl',
+    pkg: 'task-control',
+    title: 'Durable command-center task lifecycle',
+    mode: 'core',
+    consumers: ['task-execution', 'host-task-dashboard'],
+    note: 'Owns project-serialized admission, one-shot dashboard approval, durable outcomes, Discord delivery state, and honest restart interruption.',
+  },
+  {
+    key: 'taskExecution',
+    pkg: 'task-execution',
+    title: 'Confined command-center executor',
+    mode: 'core',
+    consumers: ['host-task-dashboard'],
+    note: 'Starts independent Pi, Codex, and OpenClaw runs only under full workspace confinement and owns process-tree cancellation and bounded redacted results.',
+  },
+  {
+    key: 'taskDashboard',
+    pkg: 'host-task-dashboard',
+    title: 'Local command-center ingress',
+    mode: 'core',
+    note: 'Owns the loopback authenticated dashboard and exact-allowlist outbound Discord control surface.',
   },
   {
     key: 'sessionQuery',
@@ -462,7 +485,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Subprocess seam',
     mode: 'seam',
     implementations: ['subprocess-local', 'subprocess-e2b'],
-    consumers: ['bash-local', 'bash-sandbox', 'terminal-bash', 'lsp-stdio', 'subagent-acp', 'subagent-codex', 'subagent-claude-code'],
+    consumers: ['bash-local', 'bash-sandbox', 'terminal-bash', 'lsp-stdio', 'subagent-acp', 'subagent-codex', 'subagent-claude-code', 'task-execution'],
     note: 'The bash executors, the PTY shell backend, the LSP host, and the out-of-process ACP, Codex, and Claude Code subagent backends spawn through ctx.subprocess; the service owns process coordinates, tree/session lifetime, stdio dispositions, terminal mechanics, and kill escalation.',
   },
   {
@@ -497,7 +520,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     title: 'Process-sandbox seam',
     mode: 'seam',
     implementations: ['sandbox-local'],
-    consumers: ['bash-sandbox', 'terminal-bash'],
+    consumers: ['bash-sandbox', 'terminal-bash', 'task-execution'],
     note: 'Consumers hand over the exact argv they are about to spawn; same-world backends wrap it under a per-call policy and report enforcement.',
   },
   {
@@ -619,7 +642,7 @@ const SERVICE_ROLES: ServiceRole[] = [
     pkg: 'host-webserver',
     title: 'HTTP route registration',
     mode: 'core',
-    consumers: ['client-connection', 'client-modules', 'client-hmr'],
+    consumers: ['client-connection', 'client-modules', 'client-hmr', 'host-task-dashboard'],
     note: 'Plain node:http carrier: named-route registry, index transform taps, and the static dist fallback; web-transport plugins register their own routes.',
   },
   {

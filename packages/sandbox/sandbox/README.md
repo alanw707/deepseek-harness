@@ -51,7 +51,7 @@ With this composition, a bash call runs confined under `workspace-write`: writes
 
 ### Modes and enforcement
 
-The mode names the file effects a command may perform; enforcement completeness reports how fully the backend governs them.
+The mode names the file effects a command may perform; enforcement completeness reports how fully the backend governs them. A consumer may declare existing private read-only roots that must remain visible when a backend masks a broader temporary area.
 
 | Mode | Effect |
 |---|---|
@@ -101,7 +101,7 @@ The ladder is a closed table — `read-only` may escalate to `workspace-write` o
 
 ### Writable roots
 
-`workspace-write` means "the workspace root plus the host temp areas": `writableRoots` derives that allow-list canonically, resolving symlinks and deduplicating, so the Seatbelt profile and the in-process fs fence grant exactly the same roots.
+`workspace-write` means "the workspace root plus the host temp areas": `writableRoots` derives that allow-list canonically, resolving symlinks and deduplicating, so the Seatbelt profile and the in-process fs fence grant exactly the same roots. `readOnlyRoots` adds existing paths that remain readable without becoming writable; the local bwrap backend uses this for private executor launchers and credential staging hidden by its ephemeral `/tmp` mount.
 
 </details>
 

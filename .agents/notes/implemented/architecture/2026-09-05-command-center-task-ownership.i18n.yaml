@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-05-command-center-task-ownership.md
+2026-09-05-command-center-task-ownership.md: 6305f95e251565ac6a50202e2fcb5c2b4315a505
+2026-09-05-command-center-task-ownership.zh.md: 087bdfb945ae29e5b7d87de0d9530972e0cf1f63

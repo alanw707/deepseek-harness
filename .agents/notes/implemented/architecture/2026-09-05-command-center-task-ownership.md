@@ -1,0 +1,39 @@
+# Agent Note: Command-center task ownership
+
+Status: implemented
+
+English | [中文](2026-09-05-command-center-task-ownership.zh.md)
+
+## Problem
+
+Independent Pi, Codex, and OpenClaw runs can edit the same local project, retain credentials in their user configuration, and outlive a browser request. A process-local dashboard job cannot recover honestly after restart or prevent conflicting project writes.
+
+## Decision
+
+`dsh-task-control` owns an explicit durable project allowlist, task records, overlapping-path admission, digest-bound approvals, bounded safe diagnostics, and restart recovery. `dsh-task-execution` owns an approved executor process, its process tree, and one serialized reviewed-apply operation. Execution consumes launch approval before preparing its private project snapshot. Terminal settlement requires process-tree exit and successful runtime cleanup. Cleanup failures retain nonterminal ownership and durable error details; explicit cancellation retries cleanup. Service disposal stops admission, waits for apply quiescence, and reports cleanup failures. Tasks that were running or cancelling at startup become `interrupted` and do not restart; an unfinished apply becomes `apply-interrupted` and is never retried.
+
+The command-center browser page is an additive loopback-only Host service alongside the composed DSH Web application. The shipped `web` and `web-codex` profile templates include its bundle, and exact installation-owned profile manifests are upgraded to those tuples without changing custom bundle lists. The original `/` Chat surface, sessions, and client feature rows remain the default; the dashboard contributes a separate Tasks route and Chat/Tasks navigation.
+
+Each executor starts an independent run. Pi reads a cached OpenAI Codex bearer through the supported `auth check --no-refresh --credentials --json` command and receives it through an ephemeral provider override; expired authentication fails instead of refreshing permanent credentials. Codex stages its configured auth source without refresh authority and copies it into a writable per-run `CODEX_HOME` under the sandbox temporary area, so a run cannot rotate permanent credentials; staged credential values are redacted from captured output. Pi uses the same temporary-area pattern for required runtime state, restricts file tools to the copied workspace, and has no shell tool. Codex uses ephemeral strict configuration with named filesystem permissions that deny original/private snapshot/runtime reads, allow copied-workspace writes, and disable child-command networking. OpenClaw runs from a separately managed isolated configuration with a container user matching the host `uid:gid` and the container network disabled; a protected launcher removes the exact Docker container selected by its workspace mount, and matching ownership permits removal of generated `.openclaw` state before change review. The profile patch keeps credentials, executable paths, and the OpenClaw configuration path outside source control.
+
+Project snapshot preparation uses Linux directory descriptors so renaming a source directory cannot redirect traversal through a symlink. Workspace and retained baseline files have independent inodes; entry and byte limits bound preparation, and failures or cancellation remove partial snapshots. Credential/configuration exclusions are recorded in the baseline manifest. Task control binds the snapshot location and exact manifest SHA-256 once after launch approval is consumed; cancellation prevents a late binding, and restart preserves an existing binding without preparing a replacement. Executors receive the copied workspace as cwd. The sandbox writable roots contain that workspace and its backend temporary area, while the baseline, manifest, original, and credential-input siblings remain read-only. Executor launcher and credential staging paths are declared as private read-only roots so bubblewrap exposes them even when task storage lies below its masked `/tmp`.
+
+A successful executor produces a bounded manifest with complete UTF-8 before/after contents, directory modes, and a SHA-256 digest. The dashboard displays that exact set before it can submit the digest for apply. Task control durably records and consumes this second approval before the original changes. Apply attempts share one global chain, require every affected original entry to match its baseline, and use per-entry backups for rollback. Binary changes, entry-type replacement, protected paths, and multiply hard-linked originals are refused. Retained snapshots remain after settlement and apply.
+
+Optional Discord ingress uses a dedicated outbound bot connection and requires exact user, server, and channel allowlists. Discord can create, inspect, and cancel tasks but cannot approve or dispatch them. A Discord task stores its authorized reply channel and successful terminal-delivery time so restart recovery can report interruption without repeatedly notifying completed work.
+
+The OpenClaw configuration validator accepts exactly the filesystem and runtime tool groups, rejects additional Docker bind mounts, and rejects per-agent rosters that could override the validated defaults. The profile supplies `$DSH_HOME/command-center/openclaw-task.json` as the default configuration path, while `DSH_COMMAND_CENTER_OPENCLAW_CONFIG` can select another path. An extra tool can introduce remote effects, an extra mount can expose unrelated host files, and an agent-specific override can replace otherwise safe Docker or tool settings. Executor tests reject each addition before spawn.
+
+Command-center executors do not use the DSH agent loop or emit Session events, so the recorded-Session snapshot harness has no transcript that can represent this user flow. Owner-local dashboard tests cover rendered states, and a real browser GIF records launch, model execution, exact review, and apply against the loopback service.
+
+## Alternatives considered
+
+- **Reuse an existing Pi, Codex, or OpenClaw session** — an existing session has unrelated authority, state, and lifecycle, so task cancellation and recovery could not be owned honestly.
+- **Start work directly from the dashboard request** — request lifetime does not preserve durable admission, output, cancellation, or restart state.
+- **Allow dashboard submission to launch immediately** — every launch needs an explicit durable approval so task submission alone cannot start an executor. Launch approval authorizes only the isolated copy; a separate digest-bound decision authorizes the exact reviewed project changes.
+- **Bind the dashboard beyond loopback** — local browser control does not need network exposure, and external access would require a different authentication and deployment model.
+- **Let Discord approve or dispatch** — a compromised bot token must not bypass the browser-only launch decision.
+
+## Consequences
+
+The dashboard can submit, inspect, approve, dispatch, and cancel project tasks while task records survive process restart. The allowlisted Discord bot can submit, inspect, and cancel tasks and reports terminal outcomes. Agents write only private copies of explicitly approved projects; reviewed apply is the sole path that changes an original folder. Task output is bounded and redacted rather than a complete transcript, and exact apply intentionally excludes binary or oversized changes.

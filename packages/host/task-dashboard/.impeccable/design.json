@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-06T19:01:31Z",
+  "title": "Design System: DSH Command Center",
+  "extensions": {
+    "colorMeta": {
+      "accent": { "role": "primary", "displayName": "Indigo action", "canonical": "#516bd6", "tonalRamp": ["#18234f", "#263a83", "#354fae", "#516bd6", "#788de2", "#a9b9f8", "#dce4ff", "#eef2ff"] },
+      "page-bg": { "role": "neutral", "displayName": "Page gray", "canonical": "#f6f7fa", "tonalRamp": ["#202938", "#3d4655", "#6b7485", "#8a94a5", "#b5bfd0", "#d4dbe7", "#e3e7ef", "#f6f7fa"] },
+      "good": { "role": "primary", "displayName": "Success green", "canonical": "#16845a", "tonalRamp": ["#063b28", "#075c3e", "#0b714b", "#16845a", "#38af78", "#67c796", "#cde9db", "#e9f8f0"] },
+      "warn": { "role": "tertiary", "displayName": "Review amber", "canonical": "#9a6500", "tonalRamp": ["#452900", "#674000", "#815300", "#9a6500", "#c18c28", "#e2bd62", "#f4df9f", "#fff7df"] },
+      "bad": { "role": "tertiary", "displayName": "Failure red", "canonical": "#b53c3c", "tonalRamp": ["#4d1111", "#741c1c", "#982a2a", "#b53c3c", "#d26767", "#e49b9b", "#efc4c4", "#fff0f0"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Approval headline", "purpose": "The hero promise and the decision context." },
+      "body": { "displayName": "System sans", "purpose": "All interface copy and controls." },
+      "label": { "displayName": "Compact label", "purpose": "States, metadata, and field labels." }
+    },
+    "shadows": [
+      { "name": "floating-navigation", "value": "0 6px 18px #1a223014", "purpose": "Separates the injected Chat navigation from the incumbent page." }
+    ],
+    "motion": [],
+    "breakpoints": [
+      { "name": "stack", "value": "820px" },
+      { "name": "compact", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Advances a task through an explicit approval or apply action.",
+      "html": "<button class=\"ds-btn-primary\">Continue to review</button>",
+      "css": ".ds-btn-primary { background: #516bd6; color: #fff; border: 1px solid #516bd6; border-radius: 9px; padding: .68rem .92rem; font: 650 15px/1.5 ui-sans-serif, system-ui, sans-serif; } .ds-btn-primary:hover { background: #405ac7; border-color: #405ac7; } .ds-btn-primary:focus-visible { outline: 3px solid #a9b9f8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Performs setup or non-primary task actions without competing with approval.",
+      "html": "<button class=\"ds-btn-secondary\">Add project</button>",
+      "css": ".ds-btn-secondary { background: #fff; color: #202938; border: 1px solid #d4dbe7; border-radius: 9px; padding: .68rem .92rem; font: 650 15px/1.5 ui-sans-serif, system-ui, sans-serif; } .ds-btn-secondary:hover { background: #f8faff; border-color: #b5c1d4; } .ds-btn-secondary:focus-visible { outline: 3px solid #a9b9f8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Captures a project path or one bounded task instruction.",
+      "html": "<input class=\"ds-field\" placeholder=\"/home/user/projects/example\" aria-label=\"Absolute project path\">",
+      "css": ".ds-field { width: 100%; background: #fff; color: #202938; border: 1px solid #d4dbe7; border-radius: 9px; padding: .72rem .8rem; font: 400 15px/1.5 ui-sans-serif, system-ui, sans-serif; } .ds-field:focus-visible { outline: 3px solid #a9b9f8; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "status-review",
+      "description": "Makes review, running, success, and failure legible at a glance.",
+      "html": "<span class=\"ds-status\">Changes ready</span>",
+      "css": ".ds-status { display: inline-block; background: #fff7df; color: #9a6500; border-radius: 999px; padding: .27rem .58rem; font: 750 12px/1.2 ui-sans-serif, system-ui, sans-serif; }"
+    },
+    {
+      "name": "Task Card",
+      "kind": "custom",
+      "description": "Keeps task state, next action, output, and exact change review in one readable record.",
+      "html": "<article class=\"ds-task-card\"><strong>Review the proposed file changes</strong><p>Inspect the exact before-and-after files.</p></article>",
+      "css": ".ds-task-card { background: #fff; color: #202938; border: 1px solid #e3e7ef; border-radius: 14px; padding: 1.25rem 1.35rem; } .ds-task-card p { color: #6b7485; margin: .4rem 0 0; }"
+    },
+    {
+      "name": "Application Navigation",
+      "kind": "nav",
+      "description": "Keeps original Chat and additive Tasks one click apart.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Application navigation\"><a href=\"/\">Chat</a><a href=\"/command-center\" aria-current=\"page\">Tasks</a></nav>",
+      "css": ".ds-nav { display: flex; gap: 3px; padding: 3px; border: 1px solid #e5e8ee; border-radius: 10px; background: #ffffffee; box-shadow: 0 6px 18px #1a223014; } .ds-nav a { color: #697386; border-radius: 7px; padding: 6px 10px; text-decoration: none; font: 600 12px/1.2 ui-sans-serif, system-ui, sans-serif; } .ds-nav a:hover { background: #f2f4f8; color: #202938; } .ds-nav a:focus-visible { outline: 2px solid #6d8ff5; outline-offset: 2px; } .ds-nav a[aria-current=page] { background: #eef2ff; color: #405ac7; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Approval Ledger",
+    "overview": "The Command Center treats every file change as a visible, reviewable record. The interface is restrained and bright so state, action, and exact content carry the attention; indigo marks the next approved action, while status colors distinguish review, success, and failure without turning the workspace into a game.\n\nThe system uses compact system typography, cool neutral surfaces, thin structural borders, and code-like panes for before-and-after content. It belongs beside DSH Chat rather than replacing it, so the navigation is familiar and the task route remains a calm utility.",
+    "keyCharacteristics": ["Approval-first hierarchy.", "Cool neutral canvas with one indigo action accent.", "Plain-language state labels.", "Exact content shown in bounded scrollable panes."],
+    "rules": [{ "name": "The One Action Rule", "body": "Use indigo for the action that moves the task forward; keep supporting controls neutral.", "section": "colors" }],
+    "dos": ["Do keep the current task action visible without requiring a hidden menu.", "Do show exact file content in readable, scrollable monospace panes.", "Do keep keyboard focus rings visible and controls native."],
+    "donts": ["Don't turn Tasks into a second chat shell or executor console.", "Don't imply that execution changed the original before Apply succeeds.", "Don't hide failure and interruption states behind a generic completion label."]
+  }
+}

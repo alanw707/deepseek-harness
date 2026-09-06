@@ -13,6 +13,7 @@
 | [typert.md](typert.zh.md) | 远程调用描述符、lookup/Context 声明、Typert 注册表，以及 Host Gateway/Client API 边界 |
 | [goal.md](goal.zh.md) | 持久 goal 标识、生命周期快照、激活、变更记录与 Round 归属 |
 | [schedule.md](schedule.zh.md) | 仅限 Session 内的提醒记录、持久转换、活动视图与普通对话交付 |
+| [command-center.md](command-center.zh.md) | 按项目串行的持久任务所有权、受限 Pi/Codex/OpenClaw 执行，以及本地浏览器和 Discord 控制 |
 | [todo.md](todo.zh.md) | todo 包的整列表条目类型、持久事件所有权、投影和开放轮次不变量 |
 | [solo-factory.md](solo-factory.zh.md) | 手动 issue 到 pull request 生命周期、保留 worktree、带版本历史、失败阶段恢复和 pull request 人工关卡 |
 | [commands.md](commands.zh.md) | 人类命令注册表服务：定义、适配器发现、直接调用、结果与解析视图 |

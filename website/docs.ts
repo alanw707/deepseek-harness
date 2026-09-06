@@ -163,6 +163,14 @@ const homeAndGuide = pairedPages([
     order: 2,
   },
   {
+    source: 'docs/user/guide/command-center.md',
+    route: 'guide/command-center.md',
+    label: { root: '本地命令中心', en: 'Local command center' },
+    sidebar: { root: 'zh-guide', en: 'en-guide' },
+    section: { root: '自动化', en: 'Automation' },
+    order: 3,
+  },
+  {
     source: 'docs/user/guide/mcp-memory.md',
     route: 'guide/mcp-memory.md',
     label: { root: '记忆 MCP', en: 'Memory MCP' },

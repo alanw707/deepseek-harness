@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, readlinkSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, readlinkSync, rmSync, writeFileSync } from 'node:fs'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -128,6 +128,20 @@ describe.skipIf(!bwrapUsable)('sandbox-local: real bwrap confinement', () => {
     const denied = runConfined(sandbox, `echo hi > ${outside}/denied.txt`, { mode: 'workspace-write', workspaceRoot: workdir })
     expect(denied.result.status).not.toBe(0)
     expect(existsSync(join(outside, 'denied.txt'))).toBe(false)
+  })
+
+  it('workspace-write keeps a declared private root visible after masking host /tmp', async () => {
+    const workdir = await tempDir(tmpdir())
+    const staging = await tempDir(tmpdir())
+    const source = join(staging, 'runtime.mjs')
+    writeFileSync(source, 'private-staging-ok')
+    const sandbox = await provider()
+    const confined = sandbox.confine(['cat', source], {
+      mode: 'workspace-write', workspaceRoot: workdir, readOnlyRoots: [staging],
+    })
+    const result = spawnSync(confined.argv[0] as string, confined.argv.slice(1), { timeout: 30_000, encoding: 'utf8' })
+    expect(result.status).toBe(0)
+    expect(result.stdout).toBe('private-staging-ok')
   })
 
   it('workspace-write mounts an EPHEMERAL /tmp: the write succeeds inside, the host /tmp stays untouched', async () => {

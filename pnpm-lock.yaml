@@ -169,6 +169,9 @@ importers:
       '@deepseek-ai/dsh-codex':
         specifier: workspace:^
         version: link:../../packages/bundle/codex
+      '@deepseek-ai/dsh-command-center-bundle':
+        specifier: workspace:^
+        version: link:../../packages/bundle/command-center
       '@deepseek-ai/dsh-command-compact':
         specifier: workspace:^
         version: link:../../packages/compaction/command-compact
@@ -1324,6 +1327,28 @@ importers:
       '@deepseek-ai/dsh-llm-pi-ai':
         specifier: workspace:^
         version: link:../../llm/llm-pi-ai
+
+  packages/bundle/command-center:
+    dependencies:
+      '@deepseek-ai/dsh-host-task-dashboard':
+        specifier: workspace:^
+        version: link:../../host/task-dashboard
+      '@deepseek-ai/dsh-task-control':
+        specifier: workspace:^
+        version: link:../../workspace/task-control
+      '@deepseek-ai/dsh-task-execution':
+        specifier: workspace:^
+        version: link:../../workspace/task-execution
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/cordis-plugin-include':
+        specifier: workspace:^
+        version: link:../../../vendor/include
+      '@deepseek-ai/dsh-app-boot':
+        specifier: workspace:^
+        version: link:../../boot/app-boot
 
   packages/bundle/headless:
     dependencies:
@@ -5950,6 +5975,31 @@ importers:
         specifier: workspace:^
         version: link:../../typert/protocol
 
+  packages/host/task-dashboard:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-host-webserver':
+        specifier: workspace:^
+        version: link:../webserver
+      '@deepseek-ai/dsh-task-control':
+        specifier: workspace:^
+        version: link:../../workspace/task-control
+      '@deepseek-ai/dsh-task-execution':
+        specifier: workspace:^
+        version: link:../../workspace/task-execution
+      '@types/jsdom':
+        specifier: ^28.0.3
+        version: 28.0.3
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1(@noble/hashes@2.3.0)
+
   packages/host/webserver:
     dependencies:
       '@deepseek-ai/schemastery':
@@ -9942,6 +9992,59 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.22.4
+
+  packages/workspace/task-control:
+    dependencies:
+      '@deepseek-ai/dsh-brand':
+        specifier: workspace:^
+        version: link:../../util/brand
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-storage':
+        specifier: workspace:^
+        version: link:../../storage/storage
+      '@deepseek-ai/dsh-storage-domain':
+        specifier: workspace:^
+        version: link:../../storage/storage-domain
+      '@deepseek-ai/dsh-workspace':
+        specifier: workspace:^
+        version: link:../workspace
+
+  packages/workspace/task-execution:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-sandbox':
+        specifier: workspace:^
+        version: link:../../sandbox/sandbox
+      '@deepseek-ai/dsh-storage':
+        specifier: workspace:^
+        version: link:../../storage/storage
+      '@deepseek-ai/dsh-storage-domain':
+        specifier: workspace:^
+        version: link:../../storage/storage-domain
+      '@deepseek-ai/dsh-subprocess':
+        specifier: workspace:^
+        version: link:../../subprocess/subprocess
+      '@deepseek-ai/dsh-task-control':
+        specifier: workspace:^
+        version: link:../task-control
+      '@deepseek-ai/dsh-workspace':
+        specifier: workspace:^
+        version: link:../workspace
 
   packages/workspace/workspace:
     dependencies:

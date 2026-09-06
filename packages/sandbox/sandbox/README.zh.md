@@ -51,7 +51,7 @@ kind: "package-reference"
 
 ### 模式与强制执行
 
-模式指明命令可以执行的文件操作；强制执行完整度报告后端对这些操作的管辖程度。
+模式指明命令可以执行的文件操作；强制执行完整度报告后端对这些操作的管辖程度。消费方可以声明必须保持可见、但不可写的现有私有根目录，以适配会遮蔽更大临时区域的后端。
 
 | 模式 | 效果 |
 |---|---|
@@ -101,7 +101,7 @@ kind: "package-reference"
 
 ### 可写根目录
 
-`workspace-write` 意味着「工作区根目录加宿主临时区域」：`writableRoots` 以规范化方式推导该白名单，解析符号链接并去重，使 Seatbelt profile 与进程内 fs 栅栏授予完全相同的根目录。
+`workspace-write` 意味着「工作区根目录加宿主临时区域」：`writableRoots` 以规范化方式推导该白名单，解析符号链接并去重，使 Seatbelt profile 与进程内 fs 栅栏授予完全相同的根目录。`readOnlyRoots` 添加保持可读但不可写的现有路径；本地 bwrap 后端用它暴露被临时 `/tmp` 挂载遮蔽的私有执行器 launcher 与凭据暂存目录。
 
 </details>
 

@@ -1,0 +1,35 @@
+- insert:
+    - id: command-center-task-control
+      name: '@deepseek-ai/dsh-task-control'
+
+    - id: command-center-task-execution
+      name: '@deepseek-ai/dsh-task-execution'
+      config:
+        pi:
+          command: !!js process.env.DSH_COMMAND_CENTER_PI_COMMAND ?? 'pi'
+          model: !!js process.env.DSH_COMMAND_CENTER_PI_MODEL ?? 'openai-codex/gpt-5.6-sol'
+        codex:
+          command: !!js process.env.DSH_COMMAND_CENTER_CODEX_COMMAND ?? 'codex'
+          authPath: !!js process.env.DSH_COMMAND_CENTER_CODEX_AUTH ?? ((process.env.CODEX_HOME ?? process.env.HOME + '/.codex') + '/auth.json')
+          runtimeReadRoots: !!js JSON.parse(process.env.DSH_COMMAND_CENTER_CODEX_READ_ROOTS ?? '[]')
+        openclaw:
+          command: !!js process.env.DSH_COMMAND_CENTER_OPENCLAW_COMMAND ?? 'openclaw'
+          configPath: !!js process.env.DSH_COMMAND_CENTER_OPENCLAW_CONFIG ?? dshHomePath('command-center/openclaw-task.json')
+          dockerCommand: !!js process.env.DSH_COMMAND_CENTER_DOCKER_COMMAND ?? 'docker'
+        copies:
+          directory: !!js process.env.DSH_COMMAND_CENTER_COPIES ?? (process.env.HOME + '/.dsh-command-center/task-copies')
+          maxEntries: 100000
+          maxBytes: 1073741824
+          excludedNames: [node_modules]
+        graceMs: 10000
+        outputLimitBytes: 16384
+        reviewLimitBytes: 1048576
+
+    - id: command-center-dashboard
+      name: '@deepseek-ai/dsh-host-task-dashboard'
+      config:
+        discordToken: !!js process.env.DSH_COMMAND_CENTER_DISCORD_TOKEN || undefined
+        discordUserId: !!js process.env.DSH_COMMAND_CENTER_DISCORD_USER_ID || undefined
+        discordGuildIds: !!js process.env.DSH_COMMAND_CENTER_DISCORD_GUILD_IDS?.split(',').map(value => value.trim()).filter(Boolean)
+        discordChannelIds: !!js process.env.DSH_COMMAND_CENTER_DISCORD_CHANNEL_IDS?.split(',').map(value => value.trim()).filter(Boolean)
+        discordPrefix: !!js process.env.DSH_COMMAND_CENTER_DISCORD_PREFIX || undefined
