@@ -1,53 +1,59 @@
 {
   "schemaVersion": 1,
-  "recordedCommit": "b51c017d5ef0ec5959e2d63bac7a82309b226dcc",
-  "recordedAt": "2026-09-06T19:44:07.671Z",
+  "recordedCommit": "80045ae3b7936fba328d8d98ddd313056f12946f",
+  "recordedAt": "2026-09-06T21:19:55.116Z",
   "server": {
     "command": "node apps/cli/lib/bin.js --profile web --no-open --port 0",
     "build": "pnpm run build && pnpm run build:web",
     "profile": "web",
     "origin": "loopback 127.0.0.1 with an ephemeral port",
-    "stateRoots": "fresh temporary DSH_HOME, task-copy directory, project directory, and session state"
+    "stateRoots": "fresh temporary DSH_HOME, DSH_AGENTS_HOME, task-copy directory, project directory, and session state"
   },
   "browser": {
     "tool": "browser-use",
     "viewport": {
       "width": 780,
-      "height": 492
+      "height": 493
     },
     "realModelRound": true,
     "fixtureMode": false,
     "mockTransport": false,
+    "chatHistoryTransport": "Authenticated session/create and session/prompt HTTP RPCs; authenticated session/follow over /api/remote.mux supplied the durable session history shown in the browser.",
     "executor": "Pi",
-    "prompt": "Create REVIEWED_FLOW.txt with the exact text \"real model review\". Make no other changes.",
-    "stateException": "The browser-use default local Chrome daemon reused its existing browser profile. The production startup notices were dismissed with the official Configure later action; no API key or other credential was entered or captured."
+    "chatPrompt": "Reply with exactly CHAT_BROWSER_OK and nothing else. Do not modify files.",
+    "taskPrompt": "Create REAL_FLOW.txt containing exactly: real browser flow complete. Make no other changes.",
+    "stateException": "The browser-use default local Chrome daemon reused its existing browser profile, but the recording used a fresh loopback origin with no pre-existing origin storage. No API key or other credential was entered or captured."
   },
   "recording": {
-    "browserTraceDirectory": "/home/alanw/.config/browser-harness/agent-workspace/recordings/command-center-real-flow-storyboard",
-    "frameDirectory": ".playwright-mcp/command-center-real-flow-fresh",
+    "browserTraceDirectory": "/home/alanw/.config/browser-harness/agent-workspace/recordings/command-center-real-flow-final-clean",
+    "frameDirectory": ".playwright-mcp/gif-frames-command-center-real-flow-final",
     "gif": ".playwright-mcp/command-center-real-flow.gif",
-    "sourceFrames": 6,
-    "encodedFrames": 140,
-    "durationSeconds": 14,
-    "bytes": 392136,
-    "sha256": "d80c57cbb257a2b3704b74465d4d9c6b890209c0d7edbbafad076977455c371a",
-    "encoding": "The encoder was run with six one-frame WebM intermediaries under .playwright-mcp/command-center-real-flow-webmframes and --pattern '*.webm'."
+    "sourceFrames": 8,
+    "encodedFrames": 195,
+    "durationSeconds": 19.5,
+    "bytes": 308006,
+    "sha256": "ffba6f29273f30a69d25f48ee1cdd697c90d305f043af59e17916afd6154e2a5",
+    "encoding": "The encoder was run with eight PNG frames under .playwright-mcp/gif-frames-command-center-real-flow-final at 10 fps, 128 colors, and 19.5 seconds total duration."
   },
   "states": [
-    "00-chat.png: original Chat landing with Chat selected and Tasks available",
-    "01-new-task.png: additive Tasks landing with the New task step selected",
-    "02-review-start.png: Pi task awaiting explicit Approve & start Pi approval",
-    "03-running.png: Pi running while the original project remains unchanged",
-    "04-exact-review.png: Changes ready with exact digest and before/after review",
-    "05-applied.png: applied task retained in Task history"
+    "00-chat-landing.png: original Chat landing with Chat selected and Tasks available",
+    "01-chat-prompt.png: Chat composer with the benign real-model prompt",
+    "02-chat-response.png: real GPT-5.6 Sol response CHAT_BROWSER_OK in the session log",
+    "03-chat-history.png: durable Chat session title and response in the open history sidebar",
+    "04-task-needs-review.png: Pi task awaiting explicit Approve & start Pi approval",
+    "05-task-running.png: Pi running in a private snapshot while the original project remains unchanged",
+    "06-exact-review.png: exact digest with before/after review",
+    "07-applied.png: applied task retained in closed Task history"
   ],
   "frameSha256": {
-    "00-chat.png": "87a57aa2bedfd8db740a6684b1544f1025680deadc207b9e188ef81c7c457f40",
-    "01-new-task.png": "9140972b9708f768390c754c8a3a02cb28fa27854b68c32daf5add1cf3451112",
-    "02-review-start.png": "864e0c3890fb7972af31cb0467e3cf07e328e3b6ba2635a70ef7c070286639f9",
-    "03-running.png": "5b56be7ff92aac4f93b568a2fe94ee0fb3c9fcdd1aa4e35b7b8b9463754203f4",
-    "04-exact-review.png": "3a34ac0c68f23e02c0011e43e65c81583933c021a18377ab67eb6214bfd0a77f",
-    "05-applied.png": "347aba133ac9efd4aa46486643fd6ccf63c938aef25421285c2e0448635b23f1"
+    "00-chat-landing.png": "2720c361f725a524539604b7b6181da969c2d6e77bd5fc28fbba7ef209f82fa9",
+    "01-chat-prompt.png": "bc6df91fc5eb9cec90ff133716011608fe06dad64c54a02fa6943ce26873ace0",
+    "02-chat-response.png": "9afc4e54b2463622024f03265790d4d394d2dc5a85282458622ac040a76f0dd7",
+    "03-chat-history.png": "1d1c1668da573ba644bfa43b4eb66ab4678966a285da3b91cdf656e9b3b847eb",
+    "04-task-needs-review.png": "e3d67dbef9ff54c49eaa2b0ed53d82172ade6153783a5452dd0f8cda9d69a46a",
+    "05-task-running.png": "c88d94261004e4ba120a307cf7ad17c35c45204b5604a1c06b9a36f68a18fda6",
+    "06-exact-review.png": "f6f52713fac9fd9329d888a271d5da5b5205380b6086b469e8d5bf487ba280f1",
+    "07-applied.png": "880efe94026a09d54b74047a3f3a6cfd85dce9669335070d4abadb24855aa2e4"
   },
   "compatibilityAudit": {
     "mobileViewport": {
@@ -71,7 +77,7 @@
       "messageVisible": true,
       "reloadActionVisible": true
     },
-    "originalSessionCompatibility": "The real-flow storyboard opens the original Chat route first; the built-bin profile test verifies the default Web profile retains Chat and adds /command-center.",
+    "originalSessionCompatibility": "The real-flow storyboard opens the original Chat route first, completes a real response, and shows its durable history; the built-bin profile test verifies the default Web profile retains Chat and adds /command-center.",
     "executorCompatibility": "The same real-model storyboard completed Pi review/apply; focused task-control, task-execution, sandbox, and OpenClaw policy tests remain passing.",
     "historyDecision": "Failed, cancelled, interrupted, and applied task records remain in durable history; the dashboard hides closed records from the active path without deleting them.",
     "openclawCleanupDecision": "Root-owned OpenClaw remnants are not force-deleted from the host. The exact container cleanup path retries ownership-safe cleanup and records a bounded warning when privilege prevents removal.",
@@ -95,7 +101,7 @@
     "built-bin default Web profile tests (2 passed)",
     "pnpm exec vitest run --config vitest.e2e.config.ts packages/sandbox/sandbox-local/tests/bwrap.e2e.ts (9 passed)",
     "pnpm exec vitest run packages/boot/app-boot/tests/profile.spec.ts (40 passed)",
-    "DSH_COMMAND_CENTER_REAL_FLOW=1 pnpm exec vitest run --config vitest.e2e.config.ts apps/cli/tests/command-center-real-flow.e2e.ts (1 passed)",
+    "DSH_COMMAND_CENTER_REAL_FLOW=1 pnpm exec vitest run --config vitest.e2e.config.ts apps/cli/tests/command-center-real-flow.e2e.ts (1 passed, including durable Chat response/history and Pi review/apply)",
     "git diff --check"
   ]
 }
