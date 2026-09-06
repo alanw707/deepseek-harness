@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "recordedCommit": "80045ae3b7936fba328d8d98ddd313056f12946f",
-  "recordedAt": "2026-09-06T21:19:55.116Z",
+  "recordedCommit": "6340cba1e6ccfc7abfb1dd1155324fa3521b17e5",
+  "recordedAt": "2026-09-06T21:29:17.850Z",
   "server": {
     "command": "node apps/cli/lib/bin.js --profile web --no-open --port 0",
     "build": "pnpm run build && pnpm run build:web",
@@ -25,14 +25,14 @@
     "stateException": "The browser-use default local Chrome daemon reused its existing browser profile, but the recording used a fresh loopback origin with no pre-existing origin storage. No API key or other credential was entered or captured."
   },
   "recording": {
-    "browserTraceDirectory": "/home/alanw/.config/browser-harness/agent-workspace/recordings/command-center-real-flow-final-clean",
+    "browserTraceDirectory": "/home/alanw/.config/browser-harness/agent-workspace/recordings/command-center-real-flow-final-code-6340",
     "frameDirectory": ".playwright-mcp/gif-frames-command-center-real-flow-final",
     "gif": ".playwright-mcp/command-center-real-flow.gif",
     "sourceFrames": 8,
     "encodedFrames": 195,
     "durationSeconds": 19.5,
-    "bytes": 308006,
-    "sha256": "ffba6f29273f30a69d25f48ee1cdd697c90d305f043af59e17916afd6154e2a5",
+    "bytes": 308367,
+    "sha256": "8580cd628d69af6753ea0c01d85416c0014b1fdf4b817de25e2543afdc8abfe8",
     "encoding": "The encoder was run with eight PNG frames under .playwright-mcp/gif-frames-command-center-real-flow-final at 10 fps, 128 colors, and 19.5 seconds total duration."
   },
   "states": [
@@ -46,14 +46,14 @@
     "07-applied.png: applied task retained in closed Task history"
   ],
   "frameSha256": {
-    "00-chat-landing.png": "2720c361f725a524539604b7b6181da969c2d6e77bd5fc28fbba7ef209f82fa9",
-    "01-chat-prompt.png": "bc6df91fc5eb9cec90ff133716011608fe06dad64c54a02fa6943ce26873ace0",
-    "02-chat-response.png": "9afc4e54b2463622024f03265790d4d394d2dc5a85282458622ac040a76f0dd7",
-    "03-chat-history.png": "1d1c1668da573ba644bfa43b4eb66ab4678966a285da3b91cdf656e9b3b847eb",
-    "04-task-needs-review.png": "e3d67dbef9ff54c49eaa2b0ed53d82172ade6153783a5452dd0f8cda9d69a46a",
-    "05-task-running.png": "c88d94261004e4ba120a307cf7ad17c35c45204b5604a1c06b9a36f68a18fda6",
-    "06-exact-review.png": "f6f52713fac9fd9329d888a271d5da5b5205380b6086b469e8d5bf487ba280f1",
-    "07-applied.png": "880efe94026a09d54b74047a3f3a6cfd85dce9669335070d4abadb24855aa2e4"
+    "00-chat-landing.png": "8b8dd342df7acf891e7b5008025ededf102a19ff3607d255d376033326e2f45b",
+    "01-chat-prompt.png": "536e204d71d125df1fbe28ed47d1c048b63a8dbb8b1f191d69fcf11b5c08676d",
+    "02-chat-response.png": "3943c1f65baeabcd637478fae95ffe2ae29e88f4530ef5a76695ef1dd2e9ce63",
+    "03-chat-history.png": "de6d6c9183104b15a18e990acaa8d330c66676a459c63671e7dee27eda8fb120",
+    "04-task-needs-review.png": "81ec3ab12f5005f53631edc9adf463e3fd22ec21181ad3b225debdaa4a54a00d",
+    "05-task-running.png": "4f551ef19871f68a3abae47f59328a484fa79ded59285bb70080aa60f88b2062",
+    "06-exact-review.png": "d6fe4eba32c34addb5e7b1b2ce008e864fa8cfb5cbc49050b99020af9dccb61f",
+    "07-applied.png": "e04cbc57b16d1952ba1d9594a56b1a7d1979a80707550b61fa46639e2dff02fc"
   },
   "compatibilityAudit": {
     "mobileViewport": {
