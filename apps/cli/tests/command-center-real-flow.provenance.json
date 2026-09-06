@@ -49,6 +49,43 @@
     "04-exact-review.png": "3a34ac0c68f23e02c0011e43e65c81583933c021a18377ab67eb6214bfd0a77f",
     "05-applied.png": "347aba133ac9efd4aa46486643fd6ccf63c938aef25421285c2e0448635b23f1"
   },
+  "compatibilityAudit": {
+    "mobileViewport": {
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "bodyWidth": 390,
+      "workspaceColumns": "366px",
+      "fieldColumns": "332.5px",
+      "secondaryColumns": "366px",
+      "noHorizontalOverflow": true,
+      "outputScrollRule": true,
+      "touchScrollRule": true,
+      "focusVisibleRule": true
+    },
+    "keyboard": "Tab traversal reached the brand link, Chat, Tasks, executor select, Project setup disclosure, project path input, and Add project button.",
+    "touch": "A real CDP touch drag moved the page scroll position from 0 to 732.",
+    "sessionRecovery": {
+      "authenticatedStateStatus": 200,
+      "expiredStateStatus": 401,
+      "messageVisible": true,
+      "reloadActionVisible": true
+    },
+    "originalSessionCompatibility": "The real-flow storyboard opens the original Chat route first; the built-bin profile test verifies the default Web profile retains Chat and adds /command-center.",
+    "executorCompatibility": "The same real-model storyboard completed Pi review/apply; focused task-control, task-execution, sandbox, and OpenClaw policy tests remain passing.",
+    "historyDecision": "Failed, cancelled, interrupted, and applied task records remain in durable history; the dashboard hides closed records from the active path without deleting them.",
+    "openclawCleanupDecision": "Root-owned OpenClaw remnants are not force-deleted from the host. The exact container cleanup path retries ownership-safe cleanup and records a bounded warning when privilege prevents removal.",
+    "outputViewer": {
+      "browserProductionPage": true,
+      "temporaryExecutor": "A temporary configured local Pi command emitted bounded long output for this UI audit; it was not used as real-model evidence.",
+      "scrollHeight": 5131,
+      "clientHeight": 298,
+      "keyboardPageDownScrollTop": 260,
+      "touchPageScrollBefore": 0,
+      "touchPageScrollAfter": 732,
+      "unitRefreshPreservation": true
+    }
+  },
   "validation": [
     "pnpm run lint",
     "pnpm run build",
@@ -56,6 +93,8 @@
     "pnpm run doc-sync (33 passed, 0 failed, 0 skipped)",
     "focused Command Center, task-control, task-execution, and sandbox tests (173 passed)",
     "built-bin default Web profile tests (2 passed)",
+    "pnpm exec vitest run --config vitest.e2e.config.ts packages/sandbox/sandbox-local/tests/bwrap.e2e.ts (9 passed)",
+    "pnpm exec vitest run packages/boot/app-boot/tests/profile.spec.ts (40 passed)",
     "DSH_COMMAND_CENTER_REAL_FLOW=1 pnpm exec vitest run --config vitest.e2e.config.ts apps/cli/tests/command-center-real-flow.e2e.ts (1 passed)",
     "git diff --check"
   ]
