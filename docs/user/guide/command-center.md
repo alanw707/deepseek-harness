@@ -2,7 +2,7 @@
 
 English | [中文](command-center.zh.md)
 
-The command center registers explicitly selected WSL project folders and launches new independent Pi, Codex, or OpenClaw runs for one local user. The shipped `web` and `web-codex` profiles include it by default. The dashboard binds only to `127.0.0.1`; Discord uses an outbound bot connection and does not expose an inbound public server. It mounts alongside the original DSH Web application: `/` opens DSH Chat with its sessions, workspaces, model and permission controls, tools, plans, workflows, and settings; use the Chat/Tasks navigation to enter the separate executor workspace.
+Software Factory registers explicitly selected WSL project folders and launches new independent Pi, Codex, or OpenClaw runs for one local user. The shipped `web` and `web-codex` profiles include it by default. The Host API binds only to `127.0.0.1`; Discord uses an outbound bot connection and does not expose an inbound public server. Software Factory renders inside the existing DSH Web shell: `/` remains DSH Chat with its sessions, workspaces, model and permission controls, tools, plans, workflows, and settings; use the Software Factory sidebar link or `Ctrl+Shift+T` to enter the executor workspace.
 
 ## Check the executors
 
@@ -18,7 +18,7 @@ Set `DSH_COMMAND_CENTER_COPIES` to an existing owner-only directory outside ever
 
 ## Configure a dedicated Discord bot
 
-Create a dedicated Discord application and bot; do not reuse the OpenClaw bot. Enable the Message Content privileged intent, invite the bot only to intended servers, and grant only View Channels, Send Messages, and Read Message History in intended channels. Enable Discord Developer Mode and copy the controlling user ID plus every allowed server and channel ID.
+Create a dedicated Discord application and bot; do not reuse the OpenClaw bot. Enable the Message Content privileged intent, invite the bot only to intended servers, and grant only View Channels, Send Messages, and Read Message History in intended channels. Direct messages from the configured controlling user do not need a server or channel allowlist. Enable Discord Developer Mode and copy the controlling user ID plus every allowed server and channel ID.
 
 Supply the token outside source control and comma-separated exact allowlists through the launch environment:
 
@@ -32,7 +32,7 @@ export DSH_COMMAND_CENTER_DISCORD_CHANNEL_IDS='345678901234567890'
 export DSH_COMMAND_CENTER_DISCORD_PREFIX='!cc'
 ```
 
-For repeated starts, place these values in a mode-`0600` environment file outside repositories and load it through the local process manager. A missing token disables Discord; any partial configuration or malformed Snowflake ID fails profile loading instead of weakening authorization.
+For repeated starts, place these values in a mode-`0600` environment file outside repositories and load it through the local process manager. Omit both guild and channel values for direct-message-only mode. Discord is disabled only when all Discord fields are absent; a partial configuration or malformed Snowflake ID fails profile loading rather than weakening authorization.
 
 ## Start locally
 
@@ -43,17 +43,17 @@ install -d -m 0700 "${DSH_COMMAND_CENTER_COPIES:-$HOME/.dsh-command-center/task-
 pnpm dsh --profile web --no-open --port 3181
 ```
 
-Open the exact URL printed by `dsh web` in the WSL browser environment. That authenticated URL opens the original DSH Chat; choose Tasks in the Chat/Tasks navigation for executor work, or open `/command-center` after authentication. Do not forward this port, bind the Web profile to another interface, or publish it through a reverse proxy. Each page load creates an HttpOnly SameSite session; mutation endpoints require that session and the page's CSRF token.
+Open the exact URL printed by `dsh web` in the WSL browser environment. That authenticated URL opens the DSH shell; choose Software Factory in the sidebar or press `Ctrl+Shift+T` for executor work, or open `/command-center` after authentication. Do not forward this port, bind the Web profile to another interface, or publish it through a reverse proxy. The route uses the shell's Web authentication, then creates an HttpOnly SameSite dashboard session; mutation endpoints require that session and its CSRF token.
 
 ## Use the dashboard
 
-Register only folders that this WSL user intends agents to edit. Registration is a durable command-center approval; shared DSH workspaces do not become projects automatically, and parent/child project overlap is rejected. In Tasks, choose a project and executor, write one bounded instruction, and select **Continue to review**. Inspect the named project and request, then select **Approve & start** once; this consumes launch approval and dispatches the private run. Pending, queued, and running tasks expose cancellation, and the page refreshes task state without closing output or change details.
+Register only folders that this WSL user intends agents to edit. Registration is a durable command-center approval; shared DSH workspaces do not become projects automatically, and parent/child project overlap is rejected. In Software Factory, choose a project and executor, write one bounded instruction, and select **Continue to review**. Inspect the named project and request, then select **Approve & start** once; this consumes launch approval and dispatches the private run. Pending, queued, and running tasks expose cancellation, and the route refreshes task state without closing output or change details.
 
 Cancellation requests whole-process-tree termination and reports `cancelled` only after the owned tree exits. Work for the same or overlapping project path is serialized, while unrelated registered projects may run independently.
 
 ## Use Discord
 
-The dedicated bot accepts commands only when user, server, and channel all match the configured allowlists:
+The dedicated bot accepts commands from the configured user in direct messages, or when the user, server, and channel match the configured guild allowlists:
 
 ```text
 !cc help
@@ -63,7 +63,7 @@ The dedicated bot accepts commands only when user, server, and channel all match
 !cc cancel <task-id>
 ```
 
-`run` durably creates a task and acknowledges its ID, but leaves it in `pending-approval`; Discord cannot approve or dispatch a task. Use the dashboard to inspect the exact instruction and choose **Approve & start**. The bot reports terminal success, failure, cancellation, or interruption in the originating allowed channel and persists successful notification delivery across restart.
+`run` durably creates a task and acknowledges its ID, but leaves it in `pending-approval`; Discord cannot approve or dispatch a task. Use the dashboard to inspect the exact instruction and choose **Approve & start**. The bot reports terminal success, failure, cancellation, or interruption in the originating guild channel or direct message and persists successful notification delivery across restart.
 
 ## Apply the approval policy
 

@@ -61,15 +61,15 @@ components:
     rounded: "{rounded.pill}"
 ---
 
-# Design System: DSH Command Center
+# Design System: DSH Software Factory
 
 ## Overview
 
 **Creative North Star: "The Approval Ledger"**
 
-The Command Center treats every file change as a visible, reviewable record. The interface is restrained and bright so state, action, and exact content carry the attention; indigo marks the next approved action, while status colors distinguish review, success, and failure without turning the workspace into a game.
+Software Factory treats every file change as a visible, reviewable record. The route is rendered by the DSH shell, so its sidebar, theme, session chrome, and responsive frame remain unchanged. State and the next action carry attention; semantic colors distinguish review, success, and failure.
 
-The system uses compact system typography, cool neutral surfaces, thin structural borders, and code-like panes for before-and-after content. It belongs beside DSH Chat rather than replacing it, so the navigation is familiar and the task route remains a calm utility.
+The route uses DSH typography, theme aliases, thin structural borders, and code-like panes for before-and-after content. It is a shell occupant, not a second application document or Conversation View.
 
 **Key Characteristics:**
 - Approval-first hierarchy.
@@ -79,20 +79,15 @@ The system uses compact system typography, cool neutral surfaces, thin structura
 
 ## Colors
 
-The palette is restrained: cool neutrals establish the work surface and semantic colors appear only where a state or action needs interpretation.
+The palette comes from DSH theme aliases. Cool neutral layers establish the work surface; semantic aliases appear only where a state or action needs interpretation. The route does not define page colors or light/dark overrides.
 
-### Primary
-- **Indigo action** (`#516bd6`): Primary actions, current progress, and active navigation.
-
-### Neutral
-- **Page gray** (`#f6f7fa`): Full-page background.
-- **White surface** (`#ffffff`): Cards, forms, and navigation bar.
-- **Quiet surface** (`#fbfcfe`): Secondary action callouts and subdued panes.
-- **Text ink** (`#202938`): Main copy and headings.
-- **Muted slate** (`#6b7485`): Supporting copy and metadata.
-- **Soft slate** (`#8a94a5`): Labels, timestamps, and inactive steps.
-- **Structural line** (`#e3e7ef`): Borders and dividers.
-- **Strong line** (`#d4dbe7`): Form controls and progress tracks.
+### Theme aliases
+- `--dsw-alias-brand-primary`: advancing actions and current progress.
+- `--dsw-alias-bg-base`: route canvas.
+- `--dsw-alias-bg-layer-1` and `--dsw-alias-bg-layer-2`: cards, callouts, and code panes.
+- `--dsw-alias-label-primary`, `--dsw-alias-label-secondary`, and `--dsw-alias-label-tertiary`: text hierarchy.
+- `--dsw-alias-border-l2`: structural lines and controls.
+- `--dsw-alias-state-*`: review, success, warning, and error states.
 
 ### Named Rules
 
@@ -118,17 +113,13 @@ The palette is restrained: cool neutrals establish the work surface and semantic
 
 ## Layout
 
-The page uses a centered container capped at 1120px with 40px side gutters on desktop. A 68px top bar anchors the DSH wordmark, Chat/Tasks navigation, and local-only status. The hero uses a 1.1fr/0.9fr split; the workspace uses a main column and a narrower setup/history column. At 820px the columns stack and secondary panels share a row; at 600px all columns stack, gutters shrink to 12px, actions become full-width, and before/after panes become one column.
+The route fills the existing AppFrame center column and owns one scroll container. Its centered content caps at 1180px with 28px side gutters. The masthead uses a 1.15fr/0.85fr split; the workspace uses a main column and a narrower setup/history column. At 900px the columns stack; at 640px fields and before/after panes stack, gutters shrink, and actions become full-width.
 
 The task card is the repeating unit below the hero. Its four-step progress strip, next-action callout, status badge, and exact review panes keep the current decision visible without hiding history.
 
 ## Elevation & Depth
 
-Depth comes from tonal layering and thin borders, not large shadows. Cards sit on the page gray through white fills; the injected Chat/Tasks navigation alone uses a small translucent shadow and blur because it floats over the incumbent Chat surface.
-
-### Shadow Vocabulary
-
-- **Floating navigation** (`0 6px 18px #1a223014`): Only the application navigation injected above Chat.
+Depth comes from DSH tonal layers and thin borders. The shell owns navigation elevation; Software Factory cards use the shared soft elevation token when available.
 
 ## Shapes
 
@@ -158,7 +149,7 @@ Controls use gently curved 9px corners; cards and panels use 12–14px corners; 
 
 ### Navigation
 
-The top bar uses a familiar DSH wordmark, compact text links, an indigo active state, and a green local-only pill. The Chat route receives a fixed compact navigation chip so the additive Tasks route is discoverable without changing Chat's layout. On small screens the chip moves to an 8px inset.
+The shell owns the wordmark, navigation, active route, and local status. Software Factory contributes one normal sidebar link and a `Ctrl+Shift+T` shortcut. The route does not add a duplicate top bar.
 
 ### Task Card
 
@@ -176,7 +167,7 @@ The task card makes the next decision explicit: plain-language status, bounded i
 
 ### Don't:
 
-- **Don't** turn Tasks into a second chat shell or executor console.
+- **Don't** turn Software Factory into a second chat shell or executor console.
 - **Don't** imply that execution changed the original before Apply succeeds.
 - **Don't** replace exact paths, digests, or file content with vague summaries.
 - **Don't** use decorative gradients, large shadows, or motion that obscures state.

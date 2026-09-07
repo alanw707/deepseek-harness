@@ -97,6 +97,6 @@ DSH_FACTORY_REPOSITORY=/absolute/path/to/repository dsh --profile headless-solo-
 <details>
 <summary>维护者工作上下文 — 点击展开</summary>
 
-无。
+不发布 runtime invariant companion；此 bundle 只包含 Loader patch rows，profile 和 patch 组合测试已经验证这些 rows。
 
 </details>

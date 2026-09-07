@@ -93,6 +93,6 @@ Nothing here enters the caller's request prefix, so provider cache reuse is unaf
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-None.
+No runtime invariant companion is published; run records are validated on read and updates are serialized by the history-file lock.
 
 </details>

@@ -2530,8 +2530,8 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'taskDashboard',
-    summary: 'Local command-center dashboard.',
-    description: 'Local command-center dashboard. It issues opaque HttpOnly browser sessions, requires a per-page CSRF value for every mutation, and serves no route when the Host is not bound to loopback.',
+    summary: 'Local Software Factory API.',
+    description: 'Local Software Factory API. The Web app serves the shell for `/command-center`; this host plugin keeps task authorization, session CSRF, and Discord ingress.',
     methods: [],
   },
   {

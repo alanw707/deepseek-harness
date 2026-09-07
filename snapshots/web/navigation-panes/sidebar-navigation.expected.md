@@ -1,0 +1,24 @@
+- button "New session"
+- button "Collapse sidebar":
+  - img
+- button "New session":
+  - img
+  - text: New Session
+- link "Software Factory":
+  - /url: /command-center
+- text: Workspaces
+- button "Search sessions":
+  - img
+- textbox "Search sessions..."
+- button "View options":
+  - img
+- button "Add workspace":
+  - img
+- tree "Sessions":
+  - treeitem "Ungrouped" [expanded]:
+    - img
+    - text: Ungrouped
+  - 'treeitem "NavScenario: first run bash to 1min" [selected]'
+- button "Settings":
+  - img
+  - text: Settings

@@ -4,10 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { Context } from '@deepseek-ai/cordis'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
 import { FactoryRunError, FactoryRunId, LocalCommandRunner, SoloFactory, type CommandRunner, type FactoryCommand, type SoloFactoryConfig } from '../src/index.ts'
-import * as SoloFactoryInvariant from '../src/invariant.ts'
 
 const exec = promisify(execFile)
 async function git(cwd: string, ...args: string[]): Promise<void> { await exec('git', args, { cwd }) }
@@ -416,11 +413,4 @@ describe('SoloFactory', () => {
       .toEqual(['failed', 'succeeded'])
   })
 
-  it('registers its empty invariant companion under the package name', async () => {
-    const ctx = new Context()
-    await ctx.plugin(InvariantRegistry)
-    await ctx.plugin(SoloFactoryInvariant)
-
-    expect(() => ctx.invariants.register('@deepseek-ai/dsh-solo-factory', () => {})).toThrow(/already registered/)
-  })
 })

@@ -126,6 +126,6 @@ Stable while the plugin configuration and tool definitions are unchanged.
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-None.
+No runtime invariant companion is published; tool registrations are verified by the real Loader composition test.
 
 </details>

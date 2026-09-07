@@ -871,6 +871,8 @@ export interface Config {
 export interface Config {
   /** Absolute path of index.html inside the dist root. */
   distIndex: string
+  /** Serve index.html for missing extensionless paths used by client-side routes. */
+  spaFallback?: boolean
 }
 ```
 
@@ -891,16 +893,16 @@ export interface Config {
   readonly discordToken?: string
   /** Only Discord user permitted to issue commands. */
   readonly discordUserId?: string
-  /** Exact server allowlist. */
+  /** Exact server allowlist for guild messages; omit with discordChannelIds for DM-only ingress. */
   readonly discordGuildIds?: string[]
-  /** Exact channel allowlist. */
+  /** Exact channel allowlist for guild messages; omit with discordGuildIds for DM-only ingress. */
   readonly discordChannelIds?: string[]
   /** Discord command prefix (default: `!cc`). */
   readonly discordPrefix?: string
 }
 ```
 
-来源：[`packages/host/task-dashboard/src/index.ts:22`](../packages/host/task-dashboard/src/index.ts)
+来源：[`packages/host/task-dashboard/src/index.ts:23`](../packages/host/task-dashboard/src/index.ts)
 
 <a id="deepseek-aidsh-host-webserver"></a>
 

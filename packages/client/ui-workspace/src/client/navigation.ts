@@ -25,6 +25,11 @@ export interface UiWorkspace {
    */
   startSession(workspaceId?: WorkspaceId): void
   /**
+   * Open a Session and return the shell to Chat when another route is active.
+   * @param sessionId - Session to open.
+   */
+  openSession(sessionId: SessionId): void
+  /**
    * Archive a Session and clear it when it is the current selection.
    * @param sessionId - Session to archive.
    */
@@ -111,6 +116,11 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     return attempt
   }
 
+  openSession(sessionId: SessionId): void {
+    this.sessions.open(sessionId)
+    navigateToChat()
+  }
+
   startSession(workspaceId?: WorkspaceId): void {
     const workspace = this.workspaces.list.getSnapshot()
     const sessions = this.sessions.list.getSnapshot()
@@ -124,10 +134,11 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     const target = workspaceId ?? currentWorkspaceId ?? recent
     if (target === undefined) {
       this.sessions.clear()
+      navigateToChat()
       return
     }
     void this.connectWorkspace(target).then(
-      (sessionId) => { this.sessions.open(sessionId) },
+      (sessionId) => { this.openSession(sessionId) },
       (reason: unknown) => { console.warn('new session failed:', reason) },
     )
   }
@@ -208,6 +219,13 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     return true
   }
 
+}
+
+/** Return a user-initiated Session open to the shell's Chat route. */
+function navigateToChat(): void {
+  if (typeof window === 'undefined' || window.location.pathname === '/') return
+  window.history.pushState({}, '', '/')
+  window.dispatchEvent(new PopStateEvent('popstate'))
 }
 
 /** Stable tie-breaking follows Host Workspace order. */

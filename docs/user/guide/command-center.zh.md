@@ -2,7 +2,7 @@
 
 [English](command-center.md) | 中文
 
-命令中心注册明确选择的 WSL 项目文件夹，并为一个本地用户启动新的独立 Pi、Codex 或 OpenClaw 运行。随附的 `web` 和 `web-codex` profile 默认包含它。仪表板只绑定到 `127.0.0.1`；Discord 使用出站 bot 连接，不公开入站公共服务器。它与原有 DSH Web 应用并存：`/` 打开带有 session、workspace、model 和 permission 控制、tool、plan、workflow 及 settings 的 DSH Chat；使用 Chat/Tasks 导航进入独立的执行器 workspace。
+Software Factory 注册明确选择的 WSL 项目文件夹，并为一个本地用户启动新的独立 Pi、Codex 或 OpenClaw 运行。随附的 `web` 和 `web-codex` profile 默认包含它。Host API 只绑定到 `127.0.0.1`；Discord 使用出站 bot 连接，不公开入站公共服务器。Software Factory 在现有 DSH Web shell 中渲染：`/` 仍打开带有 session、workspace、model 和 permission 控制、tool、plan、workflow 及 settings 的 DSH Chat；使用 sidebar 中的 Software Factory link 或 `Ctrl+Shift+T` 进入执行器 workspace。
 
 ## 检查执行器
 
@@ -18,7 +18,7 @@
 
 ## 配置专用 Discord bot
 
-创建专用 Discord application 和 bot；不要复用 OpenClaw bot。启用 Message Content privileged intent，只邀请 bot 进入预期服务器，并且在预期频道中只授予 View Channels、Send Messages 和 Read Message History。启用 Discord Developer Mode，并复制控制用户 ID 以及每个允许的服务器和频道 ID。
+创建专用 Discord application 和 bot；不要复用 OpenClaw bot。启用 Message Content privileged intent，只邀请 bot 进入预期服务器，并且在预期频道中只授予 View Channels、Send Messages 和 Read Message History。配置的控制用户发来的 direct message 不需要服务器或频道 allowlist。启用 Discord Developer Mode，并复制控制用户 ID 以及每个允许的服务器和频道 ID。
 
 通过启动环境在源代码控制之外提供 token 和以逗号分隔的精确 allowlist：
 
@@ -32,7 +32,7 @@ export DSH_COMMAND_CENTER_DISCORD_CHANNEL_IDS='345678901234567890'
 export DSH_COMMAND_CENTER_DISCORD_PREFIX='!cc'
 ```
 
-对于重复启动，将这些值放入仓库外 mode-`0600` 的环境文件，并通过本地进程管理器加载。缺少 token 会禁用 Discord；任何不完整配置或格式错误的 Snowflake ID 都会使 profile 加载失败，而不会削弱授权。
+对于重复启动，将这些值放入仓库外 mode-`0600` 的环境文件，并通过本地进程管理器加载。省略 guild 和 channel 值即可使用 direct-message-only mode。只有所有 Discord 字段都缺少时才会禁用 Discord；不完整配置或格式错误的 Snowflake ID 会使 profile 加载失败，而不会削弱授权。
 
 ## 在本地启动
 
@@ -43,17 +43,17 @@ install -d -m 0700 "${DSH_COMMAND_CENTER_COPIES:-$HOME/.dsh-command-center/task-
 pnpm dsh --profile web --no-open --port 3181
 ```
 
-在 WSL 浏览器环境中打开 `dsh web` 打印的完整 URL。该认证 URL 会打开原有 DSH Chat；在 Chat/Tasks 导航中选择 Tasks 进入执行器工作，或在完成认证后打开 `/command-center`。不要转发此端口、将 Web profile 绑定到其他接口或通过反向代理发布它。每次页面加载都会创建 HttpOnly SameSite 会话；变更 endpoint 需要该会话和页面的 CSRF token。
+在 WSL 浏览器环境中打开 `dsh web` 打印的完整 URL。该认证 URL 会打开 DSH shell；在 sidebar 中选择 Software Factory 或按 `Ctrl+Shift+T` 进入执行器工作，也可在认证后打开 `/command-center`。不要转发此端口、将 Web profile 绑定到其他接口或通过反向代理发布它。route 使用 shell 的 Web authentication，然后创建 HttpOnly SameSite dashboard session；变更 endpoint 需要该 session 和 CSRF token。
 
 ## 使用仪表板
 
-只注册此 WSL 用户希望代理编辑的文件夹。注册是持久的命令中心批准；共享 DSH workspace 不会自动成为项目，并且父子项目路径重叠会被拒绝。在 Tasks 中选择项目和执行器，写入一条有界指令，然后选择 **Continue to review**。检查指定项目和请求后只选择一次 **Approve & start**；该操作会消费启动批准并分派私有运行。待批准、queued 和 running 任务都提供取消，页面刷新任务状态时不会关闭输出或更改详情。
+只注册此 WSL 用户希望代理编辑的文件夹。注册是持久的命令中心批准；共享 DSH workspace 不会自动成为项目，并且父子项目路径重叠会被拒绝。在 Software Factory 中选择项目和执行器，写入一条有界指令，然后选择 **Continue to review**。检查指定项目和请求后只选择一次 **Approve & start**；该操作会消费启动批准并分派私有运行。待批准、queued 和 running 任务都提供取消，route 刷新任务状态时不会关闭输出或更改详情。
 
 取消会请求终止整个进程树，并且只在受管进程树退出后报告 `cancelled`。相同或重叠项目路径的工作会串行执行，无关的已注册项目可以独立运行。
 
 ## 使用 Discord
 
-只有当用户、服务器和频道均匹配配置的 allowlist 时，专用 bot 才接受命令：
+专用 bot 会接受配置用户在 direct message 中发出的命令，或接受用户、服务器和频道匹配配置 guild allowlist 的命令：
 
 ```text
 !cc help
@@ -63,7 +63,7 @@ pnpm dsh --profile web --no-open --port 3181
 !cc cancel <task-id>
 ```
 
-`run` 会持久创建任务并确认其 ID，但会将其留在 `pending-approval`；Discord 无法批准或分派任务。使用仪表板检查准确指令并选择 **Approve & start**。bot 在发起请求的允许频道中报告终止成功、失败、取消或中断，并跨重启持久化成功通知交付。
+`run` 会持久创建任务并确认其 ID，但会将其留在 `pending-approval`；Discord 无法批准或分派任务。使用仪表板检查准确指令并选择 **Approve & start**。bot 在发起请求的 guild channel 或 direct message 中报告终止成功、失败、取消或中断，并跨重启持久化成功通知交付。
 
 ## 应用批准策略
 

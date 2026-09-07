@@ -1,8 +1,8 @@
-# Local Command Center
+# Software Factory
 
 English | [中文](command-center.zh.md)
 
-The local command center registers explicitly approved project folders and delegates independent work to installed Pi, Codex, and OpenClaw executors. It is a single-user WSL capability: the browser dashboard binds to loopback, while the optional Discord bot makes only an outbound Gateway connection. The [task-ownership Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-command-center-task-ownership.md) owns the design, and the [setup guide](../user/guide/command-center.md) owns deployment and operator policy. The command center mounts alongside the composed DSH Web application: `/` remains the original Chat surface with its sessions and major client features, while `/command-center` is the separate executor Tasks surface.
+The [`dsh-host-task-dashboard`](../../packages/host/task-dashboard/README.md) exposes the Software Factory API only when the host Web server binds to `127.0.0.1`; the Web static fallback serves the shell for `/command-center`. It issues an HttpOnly SameSite session cookie, requires a session CSRF token for mutations, limits JSON request size, and authenticates the shell through the existing Web connection. The composed DSH Web application keeps its Chat, session, workspace, model, permission, tool, plan, workflow, subagent, settings, and attachment features in the same frame. The dashboard explicitly registers non-overlapping projects, names the project on each task, cancels waiting or running tasks, and displays complete before/after changes before it submits their digest for apply.
 
 ## Ownership and persistence
 
@@ -22,9 +22,9 @@ The outer sandbox grants writes only to the copied workspace and its backend tem
 
 ## Browser and Discord surfaces
 
-[`dsh-host-task-dashboard`](../../packages/host/task-dashboard/README.md) serves `/command-center` only when the host Web server binds to `127.0.0.1`. It issues an HttpOnly SameSite session cookie, requires a page-local CSRF token for mutations, limits JSON request size, and applies no-store and restrictive content-security headers. The composed DSH Web application remains at `/` with its existing Chat, session, workspace, model, permission, tool, plan, workflow, subagent, settings, and attachment features; the dashboard adds a Chat/Tasks link without replacing that surface. The dashboard explicitly registers non-overlapping projects, names the project on each task, cancels waiting or running tasks, and displays complete before/after changes before it submits their digest for apply.
+The browser face renders Software Factory inside the existing shell's route chain. The Host face owns the loopback API, HttpOnly SameSite dashboard session, session CSRF token, JSON request limit, and task mutations; the existing Web connection authenticates the shell and API session. The sidebar contributes a normal Software Factory link and `Ctrl+Shift+T` shortcut. The dashboard explicitly registers non-overlapping projects, names the project on each task, cancels waiting or running tasks, and displays complete before/after changes before it submits their digest for apply.
 
-The optional Discord ingress accepts commands only when the author, server, and channel match exact configured allowlists. It acknowledges durable creation, exposes project and task status, routes cancellation through the same execution owner, and reports terminal outcomes to the originating allowed channel. Successful delivery is persisted so restart does not repeat a notification.
+The optional Discord ingress accepts direct messages from the exact configured user and accepts guild messages only when the author, server, and channel match exact configured allowlists. It acknowledges durable creation, exposes project and task status, routes cancellation through the same execution owner, and reports terminal outcomes to the originating guild channel or direct message. Successful delivery is persisted so restart does not repeat a notification.
 
 ## Cordis surface
 
@@ -179,7 +179,7 @@ Source: [`packages/workspace/task-control/src/index.ts`](../../packages/workspac
 
 ### `ctx.taskDashboard` — `TaskDashboard`
 
-Local command-center dashboard. It issues opaque HttpOnly browser sessions, requires a per-page CSRF value for every mutation, and serves no route when the Host is not bound to loopback.
+Local Software Factory API. The Web app serves the shell for `/command-center`; this host plugin keeps task authorization, session CSRF, and Discord ingress.
 
 Source: [`packages/host/task-dashboard/src/index.ts`](../../packages/host/task-dashboard/src/index.ts)
 

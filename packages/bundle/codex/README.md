@@ -84,6 +84,6 @@ The bundle changes no prompt prefix itself.
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-None.
+No runtime invariant companion is published; the bundle contains only patch metadata and the patch-selection test is sufficient.
 
 </details>

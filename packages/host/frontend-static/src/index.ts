@@ -2,7 +2,7 @@
  * @deepseek-ai/dsh-host-frontend-static — SPA dist server over the webserver
  * fallback seat: serves the built frontend directory with explicit index
  * entry points. A readable index renders at the dist root and configured index
- * path; missing paths return 404, traversal outside the dist root is 403,
+ * path; the Web app also enables extensionless SPA fallback paths; traversal outside the dist root is 403,
  * unknown extensions ship as octet-stream, and non-GET/HEAD is 405. Every
  * index response first passes Connection's browser authentication, then the
  * webserver's index render (structured injection rows, then raw taps).
@@ -30,10 +30,13 @@ export const inject = ['webServer', 'connection']
 export interface Config {
   /** Absolute path of index.html inside the dist root. */
   distIndex: string
+  /** Serve index.html for missing extensionless paths used by client-side routes. */
+  spaFallback?: boolean
 }
 
 export const Config: z<Config> = z.object({
   distIndex: z.string().required(),
+  spaFallback: z.boolean().default(false),
 })
 
 const HTML_MIME = 'text/html; charset=utf-8'
@@ -67,11 +70,13 @@ const STATIC_MISS_CODES: ReadonlySet<string | undefined> = new Set([
  * @param authorizeIndex - authenticates an index response before its bytes are read.
  * @param renderIndex - produces the index.html body (structured injection
  * rendering) for the dist root and configured index path.
+ * @param spaFallback - serves the index for missing extensionless paths.
  */
 export async function serveStatic(
   pathname: string, res: ServerResponse, distRoot: string, distIndex: string,
   authorizeIndex: () => boolean,
   renderIndex: () => Promise<string>,
+  spaFallback = false,
 ): Promise<void> {
   const target = resolve(normalize(join(distRoot, pathname)))
   // Traversal rejection: the target must be distRoot itself (`/`) or stay under
@@ -94,12 +99,22 @@ export async function serveStatic(
       type = MIME[extname(target)] ?? 'application/octet-stream'
     }
   } catch (error) {
-    // Only absent or non-file targets are 404; other filesystem failures reach
-    // the webserver's request-failure handling.
-    if (!STATIC_MISS_CODES.has((error as NodeJS.ErrnoException).code)) throw error
-    res.writeHead(404)
-    res.end()
-    return
+    // Missing extensionless targets are client-side routes when the composing
+    // app opts into SPA fallback. Existing directories and asset misses stay
+    // ordinary 404s.
+    const code = (error as NodeJS.ErrnoException).code
+    if (code === 'ENOENT' && spaFallback && extname(pathname) === '') {
+      if (!authorizeIndex()) return
+      body = await renderIndex()
+      type = HTML_MIME
+    } else {
+      // Only absent or non-file targets are 404; other filesystem failures reach
+      // the webserver's request-failure handling.
+      if (!STATIC_MISS_CODES.has(code)) throw error
+      res.writeHead(404)
+      res.end()
+      return
+    }
   }
   res.writeHead(200, { 'content-type': type })
   res.end(body)
@@ -113,6 +128,7 @@ export async function serveStatic(
 export function apply(ctx: Context, config: Config): void {
   const distIndex = config.distIndex
   const distRoot = dirname(distIndex)
+  const spaFallback = config.spaFallback === true
   // The dist is built with a relative base so the same files mount under any
   // static directory; served pages also answer deep SPA-fallback paths, where
   // relative asset URLs would resolve under the request directory, so the
@@ -138,6 +154,7 @@ export function apply(ctx: Context, config: Config): void {
       distIndex,
       () => ctx.connection.authorizeIndex(req, res),
       renderIndex,
+      spaFallback,
     )
   }), 'frontend-static: fallback seat')
 }

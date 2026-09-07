@@ -8,9 +8,7 @@ import Include from '@deepseek-ai/cordis-plugin-include'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime from '@deepseek-ai/dsh-tools'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
 import * as ToolSoloFactory from '../src/index.ts'
-import * as ToolSoloFactoryInvariant from '../src/invariant.ts'
 
 let root: string | undefined
 let context: Context | undefined
@@ -74,12 +72,4 @@ describe('tool-solo-factory real Loader composition through cordis.yml', () => {
     expect(schemas.map(schema => schema.description).join(' ')).not.toMatch(/merge|release/)
   })
 
-  it('registers its empty invariant companion under the package name', async () => {
-    const ctx = new Context()
-    context = ctx
-    await ctx.plugin(InvariantRegistry)
-    await ctx.plugin(ToolSoloFactoryInvariant)
-
-    expect(() => ctx.invariants.register('@deepseek-ai/dsh-tool-solo-factory', () => {})).toThrow(/already registered/)
-  })
 })

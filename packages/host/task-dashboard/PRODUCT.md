@@ -12,7 +12,7 @@ web
 
 ## Product Purpose
 
-The Command Center lets a developer register a project, ask Pi, Codex, or OpenClaw to perform one bounded task in a private snapshot, inspect the exact staged changes, and decide whether to apply them to the original project.
+Software Factory lets a developer register a project, ask Pi, Codex, or OpenClaw to perform one bounded task in a private snapshot, inspect the exact staged changes, and decide whether to apply them to the original project.
 
 ## Positioning
 
@@ -20,11 +20,11 @@ The product separates executor work from human approval: an executor writes only
 
 ## Operating Context
 
-The route is loopback-only and sits beside the original DSH Chat workspace. The developer uses the local Web profile, project history, task status, bounded output, before-and-after views, and explicit apply action.
+The route is loopback-only and fills the existing DSH shell's center column. The developer uses the local Web profile, project history, task status, bounded output, before-and-after views, and explicit apply action.
 
 ## Capabilities and Constraints
 
-Chat remains the default landing surface. Tasks is an additive workspace with the sequence New task, Review & start, Review changes, and Apply. Browser sessions require the supported DSH authentication and a dashboard session with CSRF protection. Original files remain unchanged until exact reviewed changes are applied.
+Chat remains the default landing surface. Software Factory is an additive route with the sequence New task, Review & start, Review changes, and Apply. Browser sessions require the supported DSH authentication and a dashboard session with CSRF protection. Original files remain unchanged until exact reviewed changes are applied.
 
 ## Brand Commitments
 
@@ -32,7 +32,7 @@ The DSH name, original Chat experience, authenticated Web profile, and local-onl
 
 ## Evidence on Hand
 
-The implementation and focused tests live in `src/index.ts` and `tests/task-dashboard.spec.ts`. The built-profile integration test is `apps/cli/tests/built-bin.e2e.ts`; the opt-in real-model flow is `apps/cli/tests/command-center-real-flow.e2e.ts`.
+The Host API implementation lives in `src/index.ts`; the shell route lives in `src/client/TaskDashboardView.tsx`; focused coverage lives in `tests/task-dashboard.spec.ts` and `tests/client-apply.client.spec.tsx`. The built-profile integration test is `apps/cli/tests/built-bin.e2e.ts`; the opt-in real-model flow is `apps/cli/tests/command-center-real-flow.e2e.ts`.
 
 ## Product Principles
 

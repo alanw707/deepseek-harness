@@ -1,0 +1,27 @@
+{
+  "extends": "../../../tsconfig.base.client.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "tsBuildInfoFile": "lib/tsconfig.client.tsbuildinfo",
+    "disableSourceOfProjectReferenceRedirect": true
+  },
+  "files": [
+    "src/client/TaskDashboardView.tsx",
+    "src/client/TaskNavigation.tsx",
+    "src/client/api.ts",
+    "src/client/index.ts",
+    "src/css-modules.d.ts",
+    "src/client/locales.ts"
+  ],
+  "references": [
+    { "path": "../../../vendor/cordis" },
+    { "path": "../../client/locale" },
+    { "path": "../../client/ui-layout" },
+    { "path": "../../client/ui-primitives" },
+    { "path": "../../client/ui-renderer" },
+    { "path": "../../client/ui-sidebar" },
+    { "path": "../../client/ui-session" },
+    { "path": "../../client/ui-slots" }
+  ]
+}

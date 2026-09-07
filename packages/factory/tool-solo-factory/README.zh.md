@@ -126,6 +126,6 @@ kind: "package-reference"
 <details>
 <summary>维护者工作上下文 — 点击展开</summary>
 
-无。
+不发布 runtime invariant companion；真实 Loader 组合测试验证工具注册。
 
 </details>

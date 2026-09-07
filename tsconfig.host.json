@@ -338,7 +338,7 @@
     { "path": "./packages/host/plugin-inventory" },
     { "path": "./packages/llm/plugin-package-inventory-deepseek" },
     { "path": "./packages/host/webserver" },
-    { "path": "./packages/host/task-dashboard" },
+    { "path": "./packages/host/task-dashboard/tsconfig.host.json" },
     { "path": "./packages/sdk/client" },
     { "path": "./packages/sdk/protocol" },
     { "path": "./packages/lsp/lsp" },

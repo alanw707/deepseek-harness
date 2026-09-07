@@ -6,7 +6,7 @@ import type {} from '@deepseek-ai/dsh-task-execution'
 
 const GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json'
 const API_URL = 'https://discord.com/api/v10'
-const INTENTS = 1 | (1 << 9) | (1 << 15)
+const INTENTS = 1 | (1 << 9) | (1 << 12) | (1 << 15)
 const MAX_MESSAGE_LENGTH = 1900
 
 /** Dedicated Discord bot and exact command-source allowlists. */
@@ -15,9 +15,9 @@ export interface DiscordIngressConfig {
   readonly token: string
   /** Only Discord user permitted to issue commands. */
   readonly userId: string
-  /** Servers in which commands are accepted. */
+  /** Servers in which guild commands are accepted. */
   readonly guildIds: readonly string[]
-  /** Channels in which commands are accepted and outcomes are reported. */
+  /** Guild channels in which commands are accepted; direct messages use the user allowlist. */
   readonly channelIds: readonly string[]
   /** Command prefix. */
   readonly prefix: string
@@ -26,7 +26,7 @@ export interface DiscordIngressConfig {
 interface DiscordMessage {
   readonly id: string
   readonly channel_id: string
-  readonly guild_id: string
+  readonly guild_id?: string
   readonly content: string
   readonly author: { readonly id: string; readonly bot?: boolean }
 }
@@ -100,8 +100,8 @@ export class DiscordTaskIngress {
   private authorized(message: DiscordMessage): boolean {
     return message.author.bot !== true
       && message.author.id === this.config.userId
-      && this.guildIds.has(message.guild_id)
-      && this.channelIds.has(message.channel_id)
+      && (message.guild_id === undefined
+        || (this.guildIds.has(message.guild_id) && this.channelIds.has(message.channel_id)))
   }
 
   private async command(message: DiscordMessage, command: string): Promise<void> {
@@ -167,7 +167,7 @@ export class DiscordTaskIngress {
     try {
       for (const task of this.ctx.taskControl.list()) {
         if (task.origin !== 'discord' || task.discord === undefined || task.discord.deliveredAt !== undefined) continue
-        if (!isTerminalTaskState(task.state) || !this.channelIds.has(task.discord.channelId)) continue
+        if (!isTerminalTaskState(task.state)) continue
         await this.send(task.discord.channelId, `Terminal outcome: ${formatTask(task)}`)
         await this.ctx.taskControl.markDiscordDelivered(task.id)
       }
@@ -274,14 +274,15 @@ export class DiscordTaskIngress {
 function discordMessage(value: unknown): DiscordMessage | undefined {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined
   const message = value as Record<string, unknown>
-  if (typeof message.id !== 'string' || typeof message.channel_id !== 'string' || typeof message.guild_id !== 'string') return undefined
+  const guildId = message.guild_id
+  if (typeof message.id !== 'string' || typeof message.channel_id !== 'string' || (guildId !== undefined && typeof guildId !== 'string')) return undefined
   if (typeof message.content !== 'string' || message.author === null || typeof message.author !== 'object' || Array.isArray(message.author)) return undefined
   const author = message.author as Record<string, unknown>
   if (typeof author.id !== 'string' || (author.bot !== undefined && typeof author.bot !== 'boolean')) return undefined
   return {
     id: message.id,
     channel_id: message.channel_id,
-    guild_id: message.guild_id,
+    ...(guildId === undefined ? {} : { guild_id: guildId }),
     content: message.content,
     author: { id: author.id, ...(author.bot === undefined ? {} : { bot: author.bot }) },
   }

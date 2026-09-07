@@ -93,6 +93,6 @@ const resumed = await factory.resume(runId)
 <details>
 <summary>维护者工作上下文 — 点击展开</summary>
 
-无。
+不发布 runtime invariant companion；运行记录在读取时验证，更新由 history-file lock 串行化。
 
 </details>

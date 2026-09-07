@@ -1,8 +1,8 @@
-# 本地命令中心
+# Software Factory
 
 [English](command-center.md) | 中文
 
-本地命令中心注册明确批准的项目文件夹，并将独立工作委派给已安装的 Pi、Codex 和 OpenClaw 执行器。它是单用户 WSL capability：浏览器仪表板绑定到 loopback，而可选 Discord bot 只建立出站 Gateway 连接。[任务所有权 Agent Note](../../.agents/notes/implemented/architecture/2026-09-05-command-center-task-ownership.zh.md)规定设计，[设置指南](../user/guide/command-center.zh.md)规定部署和操作员策略。命令中心与组合后的 DSH Web 应用并存：`/` 仍是保留 session 和主要 client feature 的原有 Chat surface，而 `/command-center` 是独立的执行器 Tasks surface。
+本地命令中心注册明确批准的项目文件夹，并将独立工作委派给已安装的 Pi、Codex 和 OpenClaw 执行器。它是单用户 WSL capability：浏览器仪表板绑定到 loopback，而可选 Discord bot 只建立出站 Gateway 连接。[`dsh-host-task-dashboard`](../../packages/host/task-dashboard/README.zh.md) 只在 Host Web server 绑定到 `127.0.0.1` 时提供 Software Factory API；Web 静态回退为 `/command-center` 提供 shell。它签发 HttpOnly SameSite session cookie，要求 mutation 使用 session CSRF token，限制 JSON 请求体大小，并通过现有 Web connection 认证 shell。组合后的 DSH Web 应用在同一 frame 中保留 Chat、session、workspace、model、permission、tool、plan、workflow、subagent、settings 和 attachment 功能。
 
 ## 所有权和持久化
 
@@ -22,9 +22,9 @@ Pi 在没有 session、ambient context、shell、extensions、skills、templates
 
 ## 浏览器和 Discord surface
 
-[`dsh-host-task-dashboard`](../../packages/host/task-dashboard/README.zh.md)仅在 Host Web server 绑定到 `127.0.0.1` 时提供 `/command-center`。它签发 HttpOnly SameSite session cookie，要求 mutation 使用页面本地 CSRF token，限制 JSON 请求大小，并应用 no-store 和严格 content-security headers。组合后的 DSH Web 应用仍位于 `/`，保留原有 Chat、session、workspace、model、permission、tool、plan、workflow、subagent、settings 和 attachment 功能；仪表板增加 Chat/Tasks 链接，但不替换该 surface。仪表板明确注册不重叠的项目，在每个任务上指定项目，取消等待中或运行中的任务，并在提交更改 digest 以供应用前显示完整前后内容。
+浏览器 face 通过 route chain 在现有 shell 中渲染 Software Factory。Host face 负责 loopback API、HttpOnly SameSite dashboard session、session CSRF token、JSON 请求体限制和任务 mutation；现有 Web connection 认证 shell 和 API session。sidebar 提供普通 Software Factory link 和 `Ctrl+Shift+T` 快捷键。仪表板明确注册不重叠的项目，在每个任务上指定项目，取消等待中或运行中的任务，并在提交更改 digest 以供应用前显示完整前后内容。
 
-可选 Discord ingress 仅在 author、server 和 channel 与精确配置的 allowlist 匹配时接受命令。它确认持久创建、公开项目和任务状态、通过同一执行所有者路由取消，并向来源 allowed channel 报告终止结果。成功交付会持久化，因此重启不会重复通知。
+可选 Discord ingress 接受精确配置用户发来的 direct message，并且仅在 author、server 和 channel 与精确配置的 allowlist 匹配时接受 guild message。它确认持久创建、公开项目和任务状态、通过同一执行所有者路由取消，并向来源 guild channel 或 direct message 报告终止结果。成功交付会持久化，因此重启不会重复通知。
 
 ## Cordis surface
 
@@ -179,7 +179,7 @@ Source: [`packages/workspace/task-control/src/index.ts`](../../packages/workspac
 
 ### `ctx.taskDashboard` — `TaskDashboard`
 
-Local command-center dashboard. It issues opaque HttpOnly browser sessions, requires a per-page CSRF value for every mutation, and serves no route when the Host is not bound to loopback.
+Local Software Factory API. The Web app serves the shell for `/command-center`; this host plugin keeps task authorization, session CSRF, and Discord ingress.
 
 Source: [`packages/host/task-dashboard/src/index.ts`](../../packages/host/task-dashboard/src/index.ts)
 

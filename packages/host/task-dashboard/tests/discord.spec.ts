@@ -7,6 +7,7 @@ import { DiscordTaskIngress, type DiscordIngressConfig } from '../src/discord.ts
 const USER_ID = '111111111111111111'
 const GUILD_ID = '222222222222222222'
 const CHANNEL_ID = '333333333333333333'
+const DM_CHANNEL_ID = '555555555555555555'
 const WORKSPACE_ID = 'project' as WorkspaceId
 
 class FakeWebSocket {
@@ -138,6 +139,24 @@ describe('DiscordTaskIngress', () => {
 
     expect(fetch).not.toHaveBeenCalled()
     expect(result.taskControl.create).not.toHaveBeenCalled()
+  })
+
+  it('accepts authorized direct messages without guild or channel allowlists', async () => {
+    const fetch = successfulFetch()
+    globalThis.fetch = fetch
+    const result = harness()
+
+    await result.ingress.handle(message(`!cc run ${WORKSPACE_ID} pi inspect`, { guild_id: undefined, channel_id: DM_CHANNEL_ID }))
+
+    expect(result.requests).toEqual([{
+      workspaceId: WORKSPACE_ID,
+      executor: 'pi',
+      origin: 'discord',
+      instruction: 'inspect',
+      discordChannelId: DM_CHANNEL_ID,
+    }])
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(sentBody(fetch, 0).content).toContain('awaits dashboard approval')
   })
 
   it('acknowledges a durable request while leaving approval and dispatch to the dashboard', async () => {
@@ -319,7 +338,6 @@ describe('DiscordTaskIngress', () => {
       task({ discord: undefined }),
       task({ discord: { channelId: CHANNEL_ID, deliveredAt: 'already' }, state: 'failed' }),
       task({ state: 'running' }),
-      task({ state: 'failed', discord: { channelId: 'other' } }),
     ]
     const fetch = successfulFetch()
     globalThis.fetch = fetch
@@ -367,14 +385,17 @@ describe('DiscordTaskIngress', () => {
     const fetch = successfulFetch()
     globalThis.fetch = fetch
     globalThis.WebSocket = FakeWebSocket as unknown as typeof WebSocket
-    const complete = task({ state: 'succeeded', detail: 'exit code: 0' })
+    const complete = task({ state: 'succeeded', detail: 'exit code: 0', discord: { channelId: DM_CHANNEL_ID } })
     const result = harness([complete])
 
     result.ingress.start()
     const socket = FakeWebSocket.instances[0]!
     expect(socket.url).toContain('gateway.discord.gg')
     socket.emit('message', JSON.stringify({ op: 10, d: { heartbeat_interval: 30_000 } }))
-    expect(JSON.parse(socket.sent[0]!)).toMatchObject({ op: 2, d: { token: 'dedicated-test-token' } })
+    expect(JSON.parse(socket.sent[0]!)).toMatchObject({
+      op: 2,
+      d: { token: 'dedicated-test-token', intents: 1 | (1 << 9) | (1 << 12) | (1 << 15) },
+    })
 
     await vi.advanceTimersByTimeAsync(1000)
     expect(fetch).toHaveBeenCalledOnce()

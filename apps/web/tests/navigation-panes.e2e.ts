@@ -26,6 +26,12 @@ const SEED = join(SNAPSHOT_DIR, 'session.v2.jsonl')
 const TRAJECTORY_EXPECTED = join(SNAPSHOT_DIR, 'trajectory.expected.md')
 const SEARCH_EXPECTED = join(SNAPSHOT_DIR, 'search-results.expected.md')
 const TERMINAL_EXPECTED = join(SNAPSHOT_DIR, 'terminal-card.expected.md')
+const SIDEBAR_NAVIGATION_EXPECTED = join(SNAPSHOT_DIR, 'sidebar-navigation.expected.md')
+const COMMAND_CENTER_EXPECTED = join(SNAPSHOT_DIR, 'command-center.expected.md')
+const COMMAND_CENTER_PATCH = fileURLToPath(new URL(
+  '../../../packages/bundle/command-center/cordis.patch.yml',
+  import.meta.url,
+))
 const MODE = webSnapshotMode()
 const SEED_ID = 'navigation-panes-web-e2e'
 const EXPORTED_LOG_FILE = `session.v${SESSION_FORMAT_VERSION}.jsonl`
@@ -85,7 +91,7 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
   let slotErrors: string[] = []
 
   beforeAll(async () => {
-    scaffold = await launchWebScaffold({})
+    scaffold = await launchWebScaffold({ extraOverlayPath: COMMAND_CENTER_PATCH })
     // The workspace-aware flow runs sessions in <workspaceCwd>/workspace;
     // the read targets must live in that session cwd (pre-creation is safe
     // because the picker adopts an existing directory by path).
@@ -215,6 +221,48 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
     await expect.poll(() => page.getByText('FIRST_DONE', { exact: true }).count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(1)
     await expect.poll(() => page.getByRole('heading', { name: 'Navigation Summary' }).count(), { timeout: 15_000 }).toBe(1)
   }, 90_000)
+
+  it.skipIf(MODE === 'record')('renders Software Factory in the sidebar above Workspaces', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-sidebar'))
+    await ensureSeedOpen(page)
+    const chat = page.getByRole('tab', { name: 'Chat', exact: true })
+    const tasks = page.getByRole('link', { name: 'Software Factory', exact: true })
+    expect(await tasks.getAttribute('href')).toBe('/command-center')
+    const newSession = page.getByRole('button', { name: 'New session', exact: true }).last()
+    const workspace = page.getByText('Ungrouped', { exact: true })
+    const geometry = await Promise.all([tasks.boundingBox(), newSession.boundingBox(), workspace.boundingBox()])
+    if (geometry.some(box => box === null)) throw new Error('Sidebar navigation geometry is unavailable')
+    const chatBox = await chat.boundingBox()
+    if (chatBox === null) throw new Error('Conversation geometry is unavailable')
+    expect(geometry[0]!.x).toBeLessThan(chatBox.x)
+    expect(geometry[0]!.y).toBeGreaterThan(geometry[1]!.y)
+    expect(geometry[0]!.y).toBeLessThan(geometry[2]!.y)
+    const snapshot = await captureStableAria(page, '[class*="sidebarCol"]', scaffold.workspaceCwd)
+    await compareOrRefreshGolden(SIDEBAR_NAVIGATION_EXPECTED, snapshot, MODE)
+    await tasks.click()
+    await page.waitForURL(url => new URL(url).pathname === '/command-center')
+    await page.getByRole('heading', { name: 'Move work forward. Keep the final say.' }).waitFor({ state: 'visible' })
+    const routeSnapshot = await captureStableAria(page, 'main', scaffold.workspaceCwd)
+    await compareOrRefreshGolden(COMMAND_CENTER_EXPECTED, routeSnapshot, MODE)
+  }, 60_000)
+
+  it.skipIf(MODE === 'record')('returns to the opened session when a sidebar session row is clicked from Software Factory', async () => {
+    onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-session-from-factory'))
+    await ensureSeedOpen(page)
+    await page.getByRole('link', { name: 'Software Factory', exact: true }).click()
+    await page.waitForURL(url => new URL(url).pathname === '/command-center')
+    await page.getByRole('heading', { name: 'Move work forward. Keep the final say.' }).waitFor({ state: 'visible' })
+    // The seeded session is current, so its sidebar row carries the selected
+    // marker; click it while the Software Factory route owns the center column.
+    const selectedRow = page.locator('[role="tree"][aria-label="Sessions"] [role="treeitem"][aria-selected="true"]')
+    await expect.poll(() => selectedRow.count(), { timeout: 10_000 }).toBe(1)
+    await selectedRow.click()
+    // User expectation: opening a session returns to Chat instead of leaving
+    // the Software Factory route selected.
+    await expect.poll(() => new URL(page.url()).pathname, { timeout: 10_000 }).toBe('/')
+    await page.getByText('FIRST_DONE', { exact: true }).waitFor({ state: 'visible', timeout: 15_000 })
+    await expect.poll(() => page.getByRole('heading', { name: 'Move work forward. Keep the final say.' }).count()).toBe(0)
+  }, 60_000)
 
   it.skipIf(MODE === 'record')('renders the trajectory ledger and opens its local record inspector', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-navigation-trajectory'))
@@ -510,7 +558,7 @@ describe('web e2e: navigation & panes over a rich seeded session', () => {
   it.skipIf(MODE === 'record')('keeps the recorded fixture inventory exact', async () => {
     await assertFixtureInventory(SNAPSHOT_DIR, [
       'session.v2.jsonl', 'search-results.expected.md', 'trajectory.expected.md',
-      'terminal-card.expected.md',
+      'terminal-card.expected.md', 'sidebar-navigation.expected.md',
     ])
   })
 })

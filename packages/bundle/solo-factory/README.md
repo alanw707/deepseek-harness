@@ -97,6 +97,6 @@ The bundle changes no prompt prefix itself.
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-None.
+No runtime invariant companion is published; the bundle contains only Loader patch rows verified by profile and patch-composition tests.
 
 </details>

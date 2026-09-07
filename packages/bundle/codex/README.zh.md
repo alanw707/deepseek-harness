@@ -85,6 +85,6 @@ dsh plugin --profile <name> remove @deepseek-ai/dsh-codex
 <details>
 <summary>维护者工作上下文 — 点击展开</summary>
 
-无。
+不发布 runtime invariant companion；此 bundle 只包含 patch metadata，patch 选择测试已经足够。
 
 </details>

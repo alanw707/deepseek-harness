@@ -103,7 +103,7 @@ export type WorkspaceBrowserInjected = {
    * Workspace, then the recent Workspace, or clear into the New Session view.
    */
   startSession: (workspaceId?: WorkspaceId) => void
-  /** Open a real Session. */
+  /** Open a real Session and return the shell to Chat from another route. */
   open: (sessionId: SessionId) => void
   /**
    * Search current visible conversation messages. The Host fixes the result

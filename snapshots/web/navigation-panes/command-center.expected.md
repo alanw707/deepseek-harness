@@ -1,0 +1,41 @@
+- main "Move work forward. Keep the final say.":
+  - paragraph: Software Factory
+  - heading "Move work forward. Keep the final say." [level=1]
+  - paragraph: Work runs in a private project snapshot. You decide when work starts, review the exact files it changed, and apply those changes to the original project.
+  - paragraph: Every request follows the same path
+  - list:
+    - listitem: New task
+    - listitem: Review & start
+    - listitem: Review changes
+    - listitem: Apply
+  - text: Local only
+  - region "New task":
+    - heading "New task" [level=2]
+    - paragraph: Choose where the work belongs, pick an executor, and describe one bounded outcome. Creating a task does not start it.
+    - text: Project
+    - combobox "Project" [disabled]:
+      - option "Choose a project" [disabled] [selected]
+    - text: Executor
+    - combobox "Executor" [disabled]:
+      - option "Pi" [selected]
+      - option "Codex"
+      - option "Openclaw"
+    - paragraph: Pi works in an isolated copy and returns proposed file changes for your review.
+    - text: What should it do?
+    - textbox "What should it do?" [disabled]:
+      - /placeholder: "Example: Update README.md so the Status line says exactly “Ready for review.” Make no other changes."
+    - text: Add a project in Project setup before creating a task.
+    - button "Continue to review" [disabled]
+  - complementary "Software Factory":
+    - group:
+      - text: Project setup Approve folders before agents can use them. −
+      - paragraph: Register an absolute local folder once. The original stays protected while an executor works.
+      - text: Absolute project path
+      - textbox "Absolute project path":
+        - /placeholder: /home/user/projects/example
+      - button "Add project"
+  - region "Work needing your attention":
+    - heading "Work needing your attention" [level=2]
+    - paragraph: Start waiting work, cancel active runs, and review proposed changes here.
+    - text: 0 work item(s)
+    - paragraph: No work needs your attention. Create a task when you are ready.

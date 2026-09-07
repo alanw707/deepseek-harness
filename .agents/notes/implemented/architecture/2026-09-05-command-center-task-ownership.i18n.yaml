@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-09-05-command-center-task-ownership.md
-2026-09-05-command-center-task-ownership.md: 5c3638b5e0aedc9dde73e8a5a116aec503bbc530
-2026-09-05-command-center-task-ownership.zh.md: c9922633ebb8ebed3fa757aeb68842cdccf545ec
+2026-09-05-command-center-task-ownership.md: 0077003bf67657e83fb8b5e53bcbe9cb9d654843
+2026-09-05-command-center-task-ownership.zh.md: a1111bacd42e4a653e14c6ea78e40efca53d86b9

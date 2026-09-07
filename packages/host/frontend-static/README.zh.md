@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-浏览器从 `dsh-host-frontend-static` 获取已构建的 Web 壳：它占据 [webserver](../webserver/README.zh.md) 回退席位，并按锁定语义服务已构建前端目录——只有 dist 根目录与配置的 index 路径以 HTTP 200 渲染 `index.html`，其他已有文件直接提供，dist 根目录内缺失或非文件的 target（包括配置的 index 缺失）返回空 404，越出 dist 根目录的遍历返回 403，未知扩展名按 `application/octet-stream` 提供，GET／HEAD 之外的方法在没有匹配的具名路由时返回 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，启动 manifest（元数据清单）就是经这条路径送达页面的。回退席位只有单一所有者：第二次占据会抛错，卸载插件即释放席位。
+浏览器从 `dsh-host-frontend-static` 获取已构建的 Web 壳：它占据 [webserver](../webserver/README.zh.md) 回退席位，并按锁定语义服务已构建前端目录。dist 根目录和配置的 index 路径渲染 `index.html`；启用 `spaFallback` 后，`/command-center` 这类缺失的无扩展名路径也渲染同一个 shell，由客户端选择 route。其他已有文件直接提供，资源缺失和目录返回空 404，越出 dist 根目录的遍历返回 403，未知扩展名按 `application/octet-stream` 提供，GET／HEAD 之外的方法在没有匹配的具名路由时返回 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，回退席位只有单一所有者：第二次占据会抛错，卸载插件即释放席位。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在服务已构建 Web 壳的浏览器宿主中组合本插件：它占据 webserver 的回退席位，并应答所有未被具名路由命中的请求。它只需要一个配置值——已构建前端的 `index.html` 位于何处。
+在服务已构建 Web 壳的浏览器宿主中组合本插件：它占据 webserver 的回退席位，并应答所有未被具名路由命中的请求。它需要已构建前端的 `index.html` 路径，并可启用无扩展名客户端 route 回退。
 
 ### 最小配置
 
@@ -33,19 +33,20 @@ kind: "package-reference"
 - name: '@deepseek-ai/dsh-host-frontend-static'
   config:
     distIndex: /absolute/path/to/dist/index.html
+    spaFallback: true
 ```
 
 `distIndex` 是组合应用的组装事实：[`dsh-web-app`](../../bundle/web-app/README.zh.md) 通过前端包的 exports 解析它并挂载本插件；部署绝不硬编码它。
 
 ### 服务器强制什么
 
-请求从 dist 根目录（包含 `distIndex` 的目录）提供。dist 根目录与配置的 index 路径以 HTTP 200 渲染 `index.html`；任何其他已有文件按自身 MIME 类型直接提供，未知扩展名按 `application/octet-stream` 提供。解析到根目录之外的路径以 403 拒绝，因此精心构造的路径无法读取 dist 之上的文件。dist 根目录内缺失或非文件的 target——文件缺失、目录或配置的 index 缺失——返回空 404。没有匹配具名路由的非 GET／HEAD 请求回答 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，因此启动 manifest 在 `/` 与配置的 index 路径上到达页面。
+请求从 dist 根目录（包含 `distIndex` 的目录）提供。dist 根目录与配置的 index 路径以 HTTP 200 渲染 `index.html`；任何其他已有文件按自身 MIME 类型直接提供，未知扩展名按 `application/octet-stream` 提供。启用 `spaFallback: true` 时，缺失的无扩展名路径渲染 shell，使 browser route chain 能选择 `/command-center`；目录和资源缺失仍返回空 404。解析到根目录之外的路径以 403 拒绝，因此精心构造的路径无法读取 dist 之上的文件。没有匹配具名路由的非 GET／HEAD 请求回答 405。每个成功的 index 响应都经 webserver 的 `renderIndex` 渲染，因此启动 manifest 在每个 shell route 到达页面。
 
 根路径与配置的 index 响应会在读取 HTML 前调用 `ctx.connection.authorizeIndex`。有效进程 token 会得到 303 重定向与持久浏览器 cookie；已有有效 cookie 时直接提供 index；其他 index 请求得到 Connection 所有的 401 响应。非 index 文件仍是公开静态资源。Token、cookie、过期时间与签名记录语义都归 Connection 所有。
 
 ### 可观察的失败
 
-遍历返回 403 而不是错误页。dist 根目录内缺失或非文件的 target 返回空 404，因此失效链接或拼错的 pathname 是显式失败，而不是静默的 SPA 回退。第二次占据席位会抛错，而席位无人占据时 webserver 回答 404——本插件 fiber 被 dispose 后浏览器看到的就是它。
+遍历返回 403 而不是错误页。未启用 `spaFallback` 时，dist 根目录内缺失或非文件的 target 返回空 404；启用后只有缺失的无扩展名 target 使用 shell，目录和资源类缺失仍是明确的 404。第二次占据席位会抛错，而席位无人占据时 webserver 回答 404——本插件 fiber 被 dispose 后浏览器看到的就是它。
 
 -----
 
@@ -102,7 +103,7 @@ kind: "package-reference"
 这些限制说明某个资产类别何时尚未被覆盖。它们是当前包约束，不是任务积压。
 
 - **初始 MIME 表很精简**：它覆盖 Vite 输出的资产集合及实际交付的 PWA manifest；其他扩展名在相应资产类别发布前都会回退到 `application/octet-stream`。
-- **Pathname 路由是显式声明**——当前客户端从根目录或配置的 index 路径进入，没有 History API pathname 路由。新增一条需要显式服务器规则与真实组合覆盖，而不是对每次未命中做宽泛回退。
+- **Pathname 路由由客户端拥有**——`spaFallback` 为缺失的无扩展名路径提供 shell，但每条浏览器 route 仍需要 route-chain entry 和真实组合测试。
 
 <a id="dev-note"></a>
 ### 开发备注

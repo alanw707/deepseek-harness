@@ -910,7 +910,7 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
     beforeEach(() => { home = mkdtempSync(join(tmpdir(), 'dsh-dump-bin-')) })
     afterEach(() => { rmSync(home, { recursive: true, force: true }) })
 
-    it('boots the default Web profile with original Chat and additive Tasks', async () => {
+    it('boots the default Web profile with original Chat and additive Software Factory', async () => {
       const home = mkdtempSync(join(tmpdir(), 'dsh-default-web-'))
       const server = execa(process.execPath, [dshBin, '--profile', 'web', '--no-open', '--port', '0'], {
         cwd: repoRoot,
@@ -948,11 +948,13 @@ describe.skipIf(!existsSync(dshBin))('dsh BUILT bin (node lib/bin.js, no tsx)', 
         const chat = await fetch(new URL('/', launchUrl), { headers })
         expect(chat.status).toBe(200)
         const chatHtml = await chat.text()
-        expect(chatHtml).toContain('dsh-command-center-nav')
-        expect(chatHtml).toContain('href="/command-center"')
+        expect(chatHtml).toMatch(/<div id="root"><\/div>/u)
+        expect(chatHtml).not.toContain('<header class="topbar">')
         const tasks = await fetch(new URL('/command-center', launchUrl), { headers })
         expect(tasks.status).toBe(200)
-        expect(await tasks.text()).toContain('Move work forward. Keep the final say.')
+        const taskRouteHtml = await tasks.text()
+        expect(taskRouteHtml).toMatch(/<div id="root"><\/div>/u)
+        expect(taskRouteHtml).not.toContain('<header class="topbar">')
       } finally {
         if (!serverExited) server.kill('SIGTERM')
         await server

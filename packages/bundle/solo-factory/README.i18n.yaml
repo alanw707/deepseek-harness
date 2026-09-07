@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/bundle/solo-factory/README.md
-README.md: 8049aa9b68408f7d37f22b6bbeedf93e2dac0cda
-README.zh.md: 370e2d4555e53ee13124ed5c79ce3e6273d5e718
+README.md: ff36c20999e6a63f1f43f86429eea0eb220c6d8c
+README.zh.md: 8d11dcdf109d19457bacaf09a142888cde8d6dc8

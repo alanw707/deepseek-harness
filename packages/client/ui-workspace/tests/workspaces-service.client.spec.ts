@@ -16,6 +16,7 @@ const sid = (id: string): SessionId => SessionId(id)
 const wid = (id: string): WorkspaceId => id as WorkspaceId
 
 afterEach(() => {
+  vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
 
@@ -246,6 +247,32 @@ describe('UiWorkspaceService', () => {
     expect(b.sessions.create).toHaveBeenLastCalledWith({ workspaceId: wid('gamma') })
     await expect(b.uiWorkspace.connectWorkspace(wid('ghost')))
       .rejects.toThrow('uiWorkspace.connectWorkspace: unknown workspace ghost')
+  })
+
+  it.each([
+    { pathname: '/command-center', navigates: true },
+    { pathname: '/', navigates: false },
+  ])('returns user-opened Sessions to Chat only from another route ($pathname)', ({ pathname, navigates }) => {
+    const pushState = vi.fn()
+    const dispatchEvent = vi.fn()
+    class FakePopStateEvent {
+      readonly type: string
+      constructor(type: string) { this.type = type }
+    }
+    vi.stubGlobal('window', { location: { pathname }, history: { pushState }, dispatchEvent })
+    vi.stubGlobal('PopStateEvent', FakePopStateEvent)
+    const b = bench({ sessions: sessionState([summary('target')], sid('target')) })
+
+    b.uiWorkspace.openSession(sid('target'))
+
+    expect(b.sessions.open).toHaveBeenCalledWith(sid('target'))
+    if (navigates) {
+      expect(pushState).toHaveBeenCalledWith({}, '', '/')
+      expect(dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: 'popstate' }))
+    } else {
+      expect(pushState).not.toHaveBeenCalled()
+      expect(dispatchEvent).not.toHaveBeenCalled()
+    }
   })
 
   it('targets an explicit, current-session, then recent Workspace and reports failed starts', async () => {

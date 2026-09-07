@@ -3,11 +3,8 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import * as yaml from 'js-yaml'
-import { Context } from '@deepseek-ai/cordis'
 import { entryListSchema } from '@deepseek-ai/cordis-plugin-include'
 import { PROFILE_TEMPLATES } from '@deepseek-ai/dsh-app-boot'
-import InvariantRegistry from '@deepseek-ai/dsh-invariants'
-import * as SoloFactoryBundleInvariant from '../src/invariant.ts'
 
 describe('solo-factory profile bundle', () => {
   it('mounts implementation, focused-test, review, and pull-request stages', () => {
@@ -32,11 +29,4 @@ describe('solo-factory profile bundle', () => {
     expect(source).not.toContain('DSH_FACTORY_RELEASE')
   })
 
-  it('registers its empty invariant companion under the package name', async () => {
-    const ctx = new Context()
-    await ctx.plugin(InvariantRegistry)
-    await ctx.plugin(SoloFactoryBundleInvariant)
-
-    expect(() => ctx.invariants.register('@deepseek-ai/dsh-solo-factory-bundle', () => {})).toThrow(/already registered/)
-  })
 })

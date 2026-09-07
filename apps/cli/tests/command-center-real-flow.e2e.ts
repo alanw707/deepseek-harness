@@ -248,7 +248,7 @@ describe.skipIf(process.env.DSH_COMMAND_CENTER_REAL_FLOW !== '1')('command-cente
       const headers = { cookie, 'content-type': 'application/json' }
       const chat = await fetch(origin, { headers })
       expect(chat.status).toBe(200)
-      expect(await chat.text()).toContain('dsh-command-center-nav')
+      expect(await chat.text()).toMatch(/<div id="root"><\/div>/u)
       const chatPromptMarker = `CHAT_REAL_FLOW_PROMPT_${randomUUID()}`
       const createdChat = await chatRpc<{ sessionId: string }>(origin, cookie, 'session/create', {
         request: { cwd: project },
@@ -267,11 +267,13 @@ describe.skipIf(process.env.DSH_COMMAND_CENTER_REAL_FLOW !== '1')('command-cente
       const tasksPage = await fetch(new URL('/command-center', origin), { headers })
       expect(tasksPage.status).toBe(200)
       const tasksHtml = await tasksPage.text()
-      expect(tasksHtml).toContain('Move work forward. Keep the final say.')
-      const csrf = /const csrf="([A-Za-z0-9_-]+)"/u.exec(tasksHtml)?.[1]
-      if (csrf === undefined) throw new Error('Tasks page did not return its CSRF value')
-      const dashboardCookie = tasksPage.headers.get('set-cookie')?.split(';', 1)[0]
-      if (dashboardCookie === undefined) throw new Error('Tasks page did not return its dashboard session cookie')
+      expect(tasksHtml).toMatch(/<div id="root"><\/div>/u)
+      const dashboardSession = await fetch(new URL('/command-center/api/session', origin), { headers })
+      expect(dashboardSession.status).toBe(200)
+      const csrf = (await dashboardSession.json() as { csrf?: unknown }).csrf
+      if (typeof csrf !== 'string') throw new Error('Software Factory session did not return its CSRF value')
+      const dashboardCookie = dashboardSession.headers.get('set-cookie')?.split(';', 1)[0]
+      if (dashboardCookie === undefined) throw new Error('Software Factory session did not return its browser cookie')
       const apiHeaders = { ...headers, cookie: `${cookie}; ${dashboardCookie}`, 'x-dsh-csrf': csrf }
 
       const register = await fetch(new URL('/command-center/api/workspaces', origin), {

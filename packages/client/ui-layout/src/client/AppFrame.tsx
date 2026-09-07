@@ -23,7 +23,7 @@ import css from './AppFrame.module.css'
 /** Full composed props: runtime share + child-slot render share + store share. */
 export type AppFrameProps =
   & PropsRuntime<'root'>
-  & PropsRenderSlots<'sidebar' | 'conversation' | 'details' | 'shell.overlay'>
+  & PropsRenderSlots<'sidebar' | 'conversation' | 'conversation.route' | 'details' | 'shell.overlay'>
   & PropsStore<ReturnType<typeof createLayoutStore>>
   & PropsLocale<'common'>
 
@@ -93,6 +93,7 @@ export function AppFrame({
   useSessions,
   actions,
   renderSlot,
+  renderSlotChain,
   SessionProvider,
   t,
 }: AppFrameProps) {
@@ -107,6 +108,13 @@ export function AppFrame({
   })
   const frameRef = useRef<HTMLDivElement | null>(null)
   const [viewport, setViewport] = useState(() => window.innerWidth)
+  const [pathname, setPathname] = useState(() => window.location.pathname)
+
+  useEffect(() => {
+    const onPopState = () => { setPathname(window.location.pathname) }
+    window.addEventListener('popstate', onPopState)
+    return () => { window.removeEventListener('popstate', onPopState) }
+  }, [])
 
   const lastSession = useRef(detailsSession)
   useLayoutEffect(() => {
@@ -202,7 +210,9 @@ export function AppFrame({
             the shell's own pending rendering. The conversation
             is session-maybe; SessionProvider withholds the strict details
             entry while no session is current. */}
-        <CenterColumn>{renderSlot('conversation', {})}</CenterColumn>
+        <CenterColumn>
+          {renderSlotChain('conversation.route', { pathname }, { fallback: renderSlot('conversation', {}) })}
+        </CenterColumn>
         <DetailsColumn>
           <SessionProvider>{renderSlot('details', {})}</SessionProvider>
         </DetailsColumn>

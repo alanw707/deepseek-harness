@@ -292,6 +292,43 @@
   white-space: nowrap;
 }
 
+.primaryActions {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 8px;
+}
+
+.primaryAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  color: var(--dsw-alias-label-primary);
+  text-decoration: none;
+}
+
+.primaryAction:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.collapsed .primaryActions {
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.collapsed .primaryAction {
+  justify-content: center;
+  width: 36px;
+  padding: 0;
+  border-radius: 50%;
+}
+
 .collapsed .newSessionLabel {
   max-width: 0;
 }

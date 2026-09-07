@@ -30,7 +30,7 @@ afterEach(async () => {
 })
 
 /** Write a dist fixture and the authenticated Web rows, then boot them through the real Loader. */
-async function loadComposition(): Promise<Context> {
+async function loadComposition(spaFallback = false): Promise<Context> {
   root = await mkdtemp(join(tmpdir(), 'dsh-frontend-static-'))
   const dist = join(root, 'dist')
   await mkdir(dist)
@@ -55,6 +55,7 @@ async function loadComposition(): Promise<Context> {
     "  name: '@deepseek-ai/dsh-host-frontend-static'",
     '  config:',
     `    distIndex: '${distIndex}'`,
+    `    spaFallback: ${String(spaFallback)}`,
     '',
   ].join('\n'))
 
@@ -96,6 +97,20 @@ async function request(port: number, path: string, init?: RequestInit): Promise<
 }
 
 describe('real Loader composition', () => {
+  it('serves index.html for missing extensionless client routes when SPA fallback is enabled', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition(true)
+    const server = loaded.webServer
+    const exchange = await fetch(loaded.connection.authenticatedUrl(`http://127.0.0.1:${String(server.port)}`), { redirect: 'manual' })
+    expect(exchange.status).toBe(303)
+    const setCookie = exchange.headers.get('set-cookie')
+    if (setCookie === null) throw new Error('authenticated frontend did not set a cookie')
+    const cookie = setCookie.split(';', 1)[0]!
+    const routed = await request(server.port, '/command-center', { headers: { cookie } })
+    expect(routed).toMatchObject({ status: 200, type: 'text/html; charset=utf-8' })
+    expect(routed.body).toContain('shell')
+    expect(await request(server.port, '/missing.js', { headers: { cookie } })).toMatchObject({ status: 404 })
+  })
+
   it('serves explicit index entries and files while preserving HTTP error semantics', { timeout: 60_000 }, async () => {
     const loaded = await loadComposition()
     const unloaded = [...loaded.loader.entries()]
